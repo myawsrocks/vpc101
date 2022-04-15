@@ -1,0 +1,596 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Networking 101 Template
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      -
+        Label:
+          default: "Network Configuration"
+        Parameters:
+          - VPCCIDR
+          - PresentationSubnet1CIDR
+          - PresentationSubnet2CIDR
+          - ApplicationSubnet1CIDR
+          - ApplicationSubnet2CIDR
+          - DataSubnet1CIDR
+          - DataSubnet2CIDR
+          - PublicSubnet1CIDR
+          - PublicSubnet2CIDR
+      -
+        Label:
+          default: "Naming Configuration"
+        Parameters:
+          - Project
+
+    ParameterLabels:
+      VPCCIDR:
+        default: "Whats the VPC's IP range?"
+      PresentationSubnet1CIDR:
+        default: "Whats the IP range for presentation subnet 1?"
+      PresentationSubnet2CIDR:
+        default: "Whats the IP range for presentation subnet 2?"
+      ApplicationSubnet1CIDR:
+        default: "Whats the IP range for presentation subnet 1?"
+      ApplicationSubnet2CIDR:
+        default: "Whats the IP range for presentation subnet 2?"
+      DataSubnet1CIDR:
+        default: "Whats the IP range for presentation subnet 1?"
+      DataSubnet2CIDR:
+        default: "Whats the IP range for presentation subnet 2?"
+      PublicSubnet1CIDR:
+        default: "Whats the IP range for public subnet 1?"
+      PublicSubnet2CIDR:
+        default: "Whats the IP range for public subnet 2?"
+Parameters:
+  ##Naming
+  Project:
+    Description: Please enter a descirption for this network
+    Type: String
+    Default: "Networking 101"
+  ##VPC
+  VPCCIDR:
+    Description: Please enter the IP range (CIDR notation) for this VPC
+    Type: String
+    Default: 172.15.0.0/20
+  PresentationSubnet1CIDR:
+    Description: Please enter the IP range (CIDR notation) for the private presentation subnet in the first Availability Zone
+    Type: String
+    Default: 172.15.0.0/25
+  PresentationSubnet2CIDR:
+    Description: Please enter the IP range (CIDR notation) for the private presentation subnet in the second Availability Zone
+    Type: String
+    Default: 172.15.0.128/25
+  ApplicationSubnet1CIDR:
+    Description: Please enter the IP range (CIDR notation) for the private application subnet in the first Availability Zone
+    Type: String
+    Default: 172.15.4.0/24
+  ApplicationSubnet2CIDR:
+    Description: Please enter the IP range (CIDR notation) for the private application subnet in the second Availability Zone
+    Type: String
+    Default: 172.15.5.0/24
+  DataSubnet1CIDR:
+    Description: Please enter the IP range (CIDR notation) for the private data subnet in the first Availability Zone
+    Type: String
+    Default: 172.15.2.0/25
+  DataSubnet2CIDR:
+    Description: Please enter the IP range (CIDR notation) for the private data subnet in the second Availability Zone
+    Type: String
+    Default: 172.15.2.128/25
+  PublicSubnet1CIDR:
+    Description: Please enter the IP range (CIDR notation) for the public subnet in the first Availability Zone
+    Type: String
+    Default: 172.15.15.0/27
+  PublicSubnet2CIDR:
+    Description: Please enter the IP range (CIDR notation) for the public subnet in the second Availability Zone
+    Type: String
+    Default: 172.15.15.32/27
+
+Resources:
+  ##Base VPC
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VPCCIDR
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, VPC]]
+        - Key: Project
+          Value: !Ref Project
+  ##IPv6 Allocation
+  VPCIpv6CIDR:
+    Type: AWS::EC2::VPCCidrBlock
+    Properties:
+      VpcId: !Ref VPC
+      AmazonProvidedIpv6CidrBlock: true
+  ##Subnets
+  PresentationSubnet1:
+    Type: AWS::EC2::Subnet
+    DependsOn: VPCIpv6CIDR
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: !Ref PresentationSubnet1CIDR
+      Ipv6CidrBlock:
+        Fn::Sub:
+          - "${VPCPart}${SubnetPart}"
+          - SubnetPart: '00::/64'
+            VPCPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, PresentationSubnet1]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Presentation
+  PresentationSubnet2:
+    Type: AWS::EC2::Subnet
+    DependsOn: VPCIpv6CIDR
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      CidrBlock: !Ref PresentationSubnet2CIDR
+      Ipv6CidrBlock:
+        Fn::Sub:
+          - "${VPCPart}${SubnetPart}"
+          - SubnetPart: '10::/64'
+            VPCPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, PresentationSubnet2]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Presentation
+  ApplicationSubnet1:
+    Type: AWS::EC2::Subnet
+    DependsOn: VPCIpv6CIDR
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: !Ref ApplicationSubnet1CIDR
+      Ipv6CidrBlock:
+        Fn::Sub:
+          - "${VPCPart}${SubnetPart}"
+          - SubnetPart: '20::/64'
+            VPCPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, ApplicationSubnet1]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Application
+  ApplicationSubnet2:
+    Type: AWS::EC2::Subnet
+    DependsOn: VPCIpv6CIDR
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      CidrBlock: !Ref ApplicationSubnet2CIDR
+      Ipv6CidrBlock:
+        Fn::Sub:
+          - "${VPCPart}${SubnetPart}"
+          - SubnetPart: '30::/64'
+            VPCPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, ApplicationSubnet2]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Application
+  DataSubnet1:
+    Type: AWS::EC2::Subnet
+    DependsOn: VPCIpv6CIDR
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: !Ref DataSubnet1CIDR
+      Ipv6CidrBlock:
+        Fn::Sub:
+          - "${VPCPart}${SubnetPart}"
+          - SubnetPart: '40::/64'
+            VPCPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, DataSubnet1]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Data
+  DataSubnet2:
+    Type: AWS::EC2::Subnet
+    DependsOn: VPCIpv6CIDR
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      CidrBlock: !Ref DataSubnet2CIDR
+      Ipv6CidrBlock:
+        Fn::Sub:
+          - "${VPCPart}${SubnetPart}"
+          - SubnetPart: '50::/64'
+            VPCPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, DataSubnet2]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Data
+##Public Subnets
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    DependsOn: VPCIpv6CIDR
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: !Ref PublicSubnet1CIDR
+      Ipv6CidrBlock:
+        Fn::Sub:
+          - "${VPCPart}${SubnetPart}"
+          - SubnetPart: '60::/64'
+            VPCPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, PublicSubnet1]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Data
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    DependsOn: VPCIpv6CIDR
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      CidrBlock: !Ref PublicSubnet2CIDR
+      Ipv6CidrBlock:
+        Fn::Sub:
+          - "${VPCPart}${SubnetPart}"
+          - SubnetPart: '70::/64'
+            VPCPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, PublicSubnet2]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Data
+##Networking
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, RouteTable]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Networking
+  PresentationSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PresentationSubnet1
+  PresentationSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PresentationSubnet2
+  ApplicationSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref ApplicationSubnet1
+  ApplicationSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref ApplicationSubnet2
+  DataSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref DataSubnet1
+  DataSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref DataSubnet2
+#PublicNetworking
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, PublicRouteTable]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Networking
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet1
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet2
+##InternetAccess
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, InternetGateway]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Networking
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+  PublicIP4InternetRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+  EgressOnlyInternetGateway:
+    Type: AWS::EC2::EgressOnlyInternetGateway
+    Properties:
+      VpcId: !Ref VPC
+  PublicIP6InternetRoute:
+    Type: AWS::EC2::Route
+    DependsOn: EgressOnlyInternetGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationIpv6CidrBlock: ::/0
+      EgressOnlyInternetGatewayId: !Ref EgressOnlyInternetGateway
+  PrivateIP6InternetRoute:
+    Type: AWS::EC2::Route
+    DependsOn: EgressOnlyInternetGateway
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationIpv6CidrBlock: ::/0
+      EgressOnlyInternetGatewayId: !Ref EgressOnlyInternetGateway
+  InternetNATGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt EIP.AllocationId
+      ConnectivityType: public
+      SubnetId: !Ref PublicSubnet1
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, NatGateway]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Networking
+  PrivateIP4InternetRoute:
+    Type: AWS::EC2::Route
+    DependsOn: EgressOnlyInternetGateway
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref InternetNATGateway
+  EIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+
+##FlowLogs
+  CloudWatchLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 14
+      LogGroupName:
+        !Join
+          - '-'
+          - - !Select
+              - '0'
+              - !Split [ ' ', !Ref Project ]
+            - !Select
+              - '1'
+              - !Split [ ' ', !Ref Project ]
+            - 'VPCFlowLogs'
+  IAMFlowLogPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:DescribeLogGroups
+              - logs:DescribeLogStreams
+              - logs:PutLogEvents
+            Resource: !GetAtt CloudWatchLogGroup.Arn
+      Roles:
+        - Ref: IAMFlowLogRole
+  IAMFlowLogRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - vpc-flow-logs.amazonaws.com
+            Action:
+              - sts:AssumeRole
+  VPCFlowLogs:
+    Type: AWS::EC2::FlowLog
+    Properties:
+      LogGroupName: !Ref CloudWatchLogGroup
+      ResourceId: !Ref VPC
+      ResourceType: VPC
+      TrafficType: ALL
+      LogDestinationType: cloud-watch-logs
+      DeliverLogsPermissionArn: !GetAtt IAMFlowLogRole.Arn
+##VPC Endpoints
+  SSMEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcEndpointType: Interface
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action:
+              - 'ssm:*'
+            Resource:
+              - '*'
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.ssm'
+      PrivateDnsEnabled: true
+      VpcId: !Ref VPC
+  SSMmessagesEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcEndpointType: Interface
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action:
+              - 'ssmmessages:*'
+            Resource:
+              - '*'
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.ssmmessages'
+      PrivateDnsEnabled: true
+      VpcId: !Ref VPC
+  CloudWatchEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcEndpointType: Interface
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action:
+              - 'monitoring:*'
+            Resource:
+              - '*'
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.monitoring'
+      PrivateDnsEnabled: true
+      VpcId: !Ref VPC
+  CloudWatchLogsEndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      VpcEndpointType: Interface
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action:
+              - 'logs:*'
+            Resource:
+              - '*'
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.logs'
+      PrivateDnsEnabled: true
+      VpcId: !Ref VPC
+  STSEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcEndpointType: Interface
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action:
+              - 'sts:*'
+            Resource:
+              - '*'
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.sts'
+      PrivateDnsEnabled: true
+      VpcId: !Ref VPC
+      
+
+Outputs:
+  VPC:
+    Description: A reference to the created VPC
+    Value: !Ref VPC
+  VPCCIDR:
+    Value: !Ref VPCCIDR
+  VPCIpv6CIDR:
+    Value: !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]
+  PresentationSubnets:
+    Description: A list of the presentation subnets
+    Value: !Join [ ",", [ !Ref PresentationSubnet1, !Ref PresentationSubnet2]]
+  PresentationSubnet1:
+    Description: A reference to the first presentation subnet
+    Value: !Ref PresentationSubnet1
+  PresentationSubnet2:
+    Description: A reference to the second presentation subnet
+    Value: !Ref PresentationSubnet2
+  ApplicationSubnets:
+    Description: A list of the application subnets
+    Value: !Join [ ",", [ !Ref ApplicationSubnet1, !Ref ApplicationSubnet2]]
+  ApplicationSubnet1:
+    Description: A reference to the first application subnet
+    Value: !Ref ApplicationSubnet1
+  ApplicationSubnet2:
+    Description: A reference to the second application subnet
+    Value: !Ref ApplicationSubnet2
+  DataSubnets:
+    Description: A list of the data subnets
+    Value: !Join [ ",", [ !Ref DataSubnet1, !Ref DataSubnet2]]
+  DataSubnet1:
+    Description: A reference to the first data subnet
+    Value: !Ref DataSubnet1
+  DataSubnet2:
+    Description: A reference to the second data subnet
+    Value: !Ref DataSubnet2
+  AvailabilityZones:
+    Description: The Availability zones used
+    Value: !Join [ ",", [ !GetAtt DataSubnet1.AvailabilityZone, !GetAtt DataSubnet2.AvailabilityZone]]
+  PresentationSubnet1CIDR:
+    Value: !Ref PresentationSubnet1CIDR
+  PresentationSubnet2CIDR:
+    Value: !Ref PresentationSubnet2CIDR
+  ApplicationSubnet1CIDR:
+    Value: !Ref ApplicationSubnet1CIDR
+  ApplicationSubnet2CIDR:
+    Value: !Ref ApplicationSubnet2CIDR
+  DataSubnet1CIDR:
+    Value: !Ref DataSubnet1CIDR
+  DataSubnet2CIDR:
+    Value: !Ref DataSubnet2CIDR
+  PresentationSubnet1IPv6CIDR:
+    Value: !Select [ 0, !GetAtt PresentationSubnet1.Ipv6CidrBlocks ]
+  PresentationSubnet2IPv6CIDR:
+    Value: !Select [ 0, !GetAtt PresentationSubnet2.Ipv6CidrBlocks]
+  ApplicationSubnet1IPv6CIDR:
+    Value: !Select [ 0, !GetAtt ApplicationSubnet1.Ipv6CidrBlocks]
+  ApplicationSubnet2IPv6CIDR:
+    Value: !Select [ 0, !GetAtt ApplicationSubnet2.Ipv6CidrBlocks]
+  DataSubnet1IPv6CIDR:
+    Value: !Select [ 0, !GetAtt DataSubnet1.Ipv6CidrBlocks]
+  DataSubnet2IPv6CIDR:
+    Value: !Select [ 0, !GetAtt DataSubnet2.Ipv6CidrBlocks]
+  PrivateRouteTable:
+    Value: !Ref PrivateRouteTable
