@@ -48,12 +48,10 @@
   </ol>
 </details>
 
-
-
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-
-This solution walks through the building and securing of the following VPC.
+This solution walks through the building and securing of the following VPC.<br/>
+At the end of the deployment you will have a VPC spanning multiple Availability Zones (AZ) with both IPv4 and IPv6 ranges.<br/>
 
 ![Product Name Screen Shot][product-screenshot]
 
@@ -82,25 +80,19 @@ This solution walks through the building and securing of the following VPC.
 
 <!-- GETTING STARTED -->
 ## Getting Started
-
 ### Prerequisites
-
 To keep things simple this is a single file CloudFormation template to deploy all components.
 As such this can be uploaded directly into the AWS console so no need to have any fancy deployment tools.
-
 1. An AWS Account
 2. An IAM User with rights to deploy cloudformation and create resources.
 3. A copy of the code.
-
 #### AWS Account
 If you don't already have an AWS account you can [sign up here.](https://portal.aws.amazon.com/billing/signup) </br>
 **Don't forget to secure your new account!!</br>**
 If you don't know how take a look at my post on [setting up your AWS account](https://myaws.rocks/setting-up-your-aws-account/)
-
 #### IAM User
 If you didn't follow my post and are logging in with root go and create an IAM user.</br>
 Details on how are in the [AWS IAM UserGuide](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html#id_users_create_console)
-
 ### Code
 The simplest way to get the code is to [download the zip file](https://github.com/myawsrocks/vpc101/archive/refs/heads/main.zip) and extract it using your pc's built in zip program to a location you can easily get to.<br/>
 If your more advance clone the repo:
@@ -109,14 +101,12 @@ Clone the repo
    git clone https://github.com/myawsrocks/vpc101.git
    ```
 ### Deployment
-
 If you just want to deploy the full VPC, create a new stack with the [vpc.yaml](vpc.yaml) file.<br/>
 You can chose to enter custom parameters but the solution will build with defaults.<br/>
 </br>
 If you are following along with my blog and/or want to build components step by step first create a new stack with the [vpc_1.yaml](vpc_1.yaml) file.<br/>
 Again you can chose to enter custom parameters but the solution will build with defaults.<br/>
 Use the "Update Stack" option and upload the next file (vpc_2.yaml then vpc_3.yaml etc) to go through and build the components.
-
 ### Clean Up
 <div class="warning" style='background-color:#ffa666'>
 <h2 style='text-align:center'>WARNING!</h2>
@@ -128,14 +118,10 @@ So in a month with 31 days (744 hours) that equates to <b>$157</b> just to have 
 <br/>
 </p>
 </div>
-
 So, once you've taken a look around what's been provisioned go back to the cloudformation stack and delete. 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
-<!-- USAGE EXAMPLES -->
+<!--USAGE EXAMPLES
 ## Usage
 
 Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
@@ -143,9 +129,7 @@ Use this space to show useful examples of how a project can be used. Additional 
 _For more examples, please refer to the [Documentation](https://example.com)_
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
+-->
 <!-- ROADMAP -->
 ## Roadmap
 
@@ -159,9 +143,6 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 See the [open issues](https://github.com/myawsrocks/vpc101/issues) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
 <!-- CONTRIBUTING -->
 ## Contributing
 
@@ -175,25 +156,12 @@ Don't forget to give the project a star! Thanks again!
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
+6. 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
 <!-- LICENSE -->
+
 ## License
-
-Distributed under the MIT License. See `LICENSE.txt` for more information.
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
-<!-- CONTACT -->
-## Contact
-[![LinkedIn][linkedin-shield]][linkedin-url]
-[![Twitter][twitter-shield]][twitter-url]
-
+Distributed under the GPL3 License. See [license file](LICENSE) for more information.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
