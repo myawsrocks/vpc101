@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Networking 101 Template
+
+Parameters:
+##Naming
+  Project:
+    Description: Please enter a descirption for this network
+    Type: String
+    Default: "Networking 101"
+##VPC
+  VPCCIDR:
+    Description: Please enter the IP range (CIDR notation) for this VPC
+    Type: String
+    Default: 172.15.0.0/20
+
+Resources:
+##Base VPC
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VPCCIDR
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, VPC]]
+        - Key: Project
+          Value: !Ref Project
+##IPv6 Allocation
+  VPCIpv6CIDR:
+    Type: AWS::EC2::VPCCidrBlock
+    Properties:
+      VpcId: !Ref VPC
+      AmazonProvidedIpv6CidrBlock: true
+
+Outputs:
+  VPC:
+    Description: A reference to the created VPC
+    Value: !Ref VPC
+  VPCCIDR:
+    Value: !Ref VPCCIDR
+  VPCIpv6CIDR:
+    Value: !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]
