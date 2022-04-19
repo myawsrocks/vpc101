@@ -1,17 +1,15 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Networking 101 Template
+Description: VPC 101 Template - Base VPC with IPv6, subnets, routing, flowlogs and VPC Endpoints
 
 Parameters:
-  ##Naming
   Project:
     Description: Please enter a descirption for this network
     Type: String
-    Default: "Networking 101"
-  ##VPC
+    Default: "VPC 101"
   VPCCIDR:
     Description: Please enter the IP range (CIDR notation) for this VPC
     Type: String
-    Default: 172.15.0.0/20
+    Default: 172.15.0.0/21
   PresentationSubnet1CIDR:
     Description: Please enter the IP range (CIDR notation) for the private presentation subnet in the first Availability Zone
     Type: String
@@ -20,6 +18,10 @@ Parameters:
     Description: Please enter the IP range (CIDR notation) for the private presentation subnet in the second Availability Zone
     Type: String
     Default: 172.15.0.128/25
+  PresentationSubnet3CIDR:
+    Description: Please enter the IP range (CIDR notation) for the private presentation subnet in the third Availability Zone
+    Type: String
+    Default: 172.15.1.0/25
   ApplicationSubnet1CIDR:
     Description: Please enter the IP range (CIDR notation) for the private application subnet in the first Availability Zone
     Type: String
@@ -28,6 +30,10 @@ Parameters:
     Description: Please enter the IP range (CIDR notation) for the private application subnet in the second Availability Zone
     Type: String
     Default: 172.15.5.0/24
+  ApplicationSubnet3CIDR:
+    Description: Please enter the IP range (CIDR notation) for the private application subnet in the third Availability Zone
+    Type: String
+    Default: 172.15.6.0/24
   DataSubnet1CIDR:
     Description: Please enter the IP range (CIDR notation) for the private data subnet in the first Availability Zone
     Type: String
@@ -36,9 +42,12 @@ Parameters:
     Description: Please enter the IP range (CIDR notation) for the private data subnet in the second Availability Zone
     Type: String
     Default: 172.15.2.128/25
+  DataSubnet3CIDR:
+    Description: Please enter the IP range (CIDR notation) for the private data subnet in the third Availability Zone
+    Type: String
+    Default: 172.15.3.0/25
 
 Resources:
-  ##Base VPC
   VPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -50,13 +59,13 @@ Resources:
           Value: !Join [ "-", [ !Ref Project, VPC]]
         - Key: Project
           Value: !Ref Project
-  ##IPv6 Allocation
+
   VPCIpv6CIDR:
     Type: AWS::EC2::VPCCidrBlock
     Properties:
       VpcId: !Ref VPC
       AmazonProvidedIpv6CidrBlock: true
-  ##Subnets
+
   PresentationSubnet1:
     Type: AWS::EC2::Subnet
     DependsOn: VPCIpv6CIDR
@@ -87,7 +96,7 @@ Resources:
       Ipv6CidrBlock:
         Fn::Sub:
           - "${VPCPart}${SubnetPart}"
-          - SubnetPart: '10::/64'
+          - SubnetPart: '01::/64'
             VPCPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
       MapPublicIpOnLaunch: false
       Tags:
@@ -97,6 +106,27 @@ Resources:
           Value: !Ref Project
         - Key:  Tier
           Value: Presentation
+  PresentationSubnet3:
+    Type: AWS::EC2::Subnet
+    DependsOn: VPCIpv6CIDR
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 2, !GetAZs '' ]
+      CidrBlock: !Ref PresentationSubnet3CIDR
+      Ipv6CidrBlock:
+        Fn::Sub:
+          - "${VPCPart}${SubnetPart}"
+          - SubnetPart: '02::/64'
+            VPCPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, PresentationSubnet3]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Presentation
+
   ApplicationSubnet1:
     Type: AWS::EC2::Subnet
     DependsOn: VPCIpv6CIDR
@@ -107,7 +137,7 @@ Resources:
       Ipv6CidrBlock:
         Fn::Sub:
           - "${VPCPart}${SubnetPart}"
-          - SubnetPart: '20::/64'
+          - SubnetPart: '40::/64'
             VPCPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
       MapPublicIpOnLaunch: false
       Tags:
@@ -127,7 +157,7 @@ Resources:
       Ipv6CidrBlock:
         Fn::Sub:
           - "${VPCPart}${SubnetPart}"
-          - SubnetPart: '30::/64'
+          - SubnetPart: '41::/64'
             VPCPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
       MapPublicIpOnLaunch: false
       Tags:
@@ -137,6 +167,27 @@ Resources:
           Value: !Ref Project
         - Key:  Tier
           Value: Application
+  ApplicationSubnet3:
+    Type: AWS::EC2::Subnet
+    DependsOn: VPCIpv6CIDR
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 2, !GetAZs '' ]
+      CidrBlock: !Ref ApplicationSubnet3CIDR
+      Ipv6CidrBlock:
+        Fn::Sub:
+          - "${VPCPart}${SubnetPart}"
+          - SubnetPart: '42::/64'
+            VPCPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, ApplicationSubnet3]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Application
+
   DataSubnet1:
     Type: AWS::EC2::Subnet
     DependsOn: VPCIpv6CIDR
@@ -147,7 +198,7 @@ Resources:
       Ipv6CidrBlock:
         Fn::Sub:
           - "${VPCPart}${SubnetPart}"
-          - SubnetPart: '40::/64'
+          - SubnetPart: '80::/64'
             VPCPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
       MapPublicIpOnLaunch: false
       Tags:
@@ -167,7 +218,7 @@ Resources:
       Ipv6CidrBlock:
         Fn::Sub:
           - "${VPCPart}${SubnetPart}"
-          - SubnetPart: '50::/64'
+          - SubnetPart: '81::/64'
             VPCPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
       MapPublicIpOnLaunch: false
       Tags:
@@ -177,7 +228,27 @@ Resources:
           Value: !Ref Project
         - Key:  Tier
           Value: Data
-##Networking
+  DataSubnet3:
+    Type: AWS::EC2::Subnet
+    DependsOn: VPCIpv6CIDR
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 2, !GetAZs '' ]
+      CidrBlock: !Ref DataSubnet2CIDR
+      Ipv6CidrBlock:
+        Fn::Sub:
+          - "${VPCPart}${SubnetPart}"
+          - SubnetPart: '82::/64'
+            VPCPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, DataSubnet2]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Data
+
   PrivateRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -189,6 +260,7 @@ Resources:
           Value: !Ref Project
         - Key:  Tier
           Value: Networking
+
   PresentationSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -199,6 +271,12 @@ Resources:
     Properties:
       RouteTableId: !Ref PrivateRouteTable
       SubnetId: !Ref PresentationSubnet2
+  PresentationSubnet3RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PresentationSubnet3
+
   ApplicationSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -209,6 +287,12 @@ Resources:
     Properties:
       RouteTableId: !Ref PrivateRouteTable
       SubnetId: !Ref ApplicationSubnet2
+  ApplicationSubnet3RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref ApplicationSubnet3
+
   DataSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -219,7 +303,12 @@ Resources:
     Properties:
       RouteTableId: !Ref PrivateRouteTable
       SubnetId: !Ref DataSubnet2
-##FlowLogs
+  DataSubnet3RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref DataSubnet3
+
   CloudWatchLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
@@ -234,7 +323,6 @@ Resources:
             - '1'
             - !Split [ ' ', !Ref Project ]
           - 'VPCFlowLogs'
-
   IAMFlowLogPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
@@ -271,7 +359,7 @@ Resources:
       TrafficType: ALL
       LogDestinationType: cloud-watch-logs
       DeliverLogsPermissionArn: !GetAtt IAMFlowLogRole.Arn
-##VPC Endpoints
+
   SSMEndpoint:
     Type: AWS::EC2::VPCEndpoint
     Properties:
@@ -361,6 +449,7 @@ Outputs:
     Value: !Ref VPCCIDR
   VPCIpv6CIDR:
     Value: !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]
+
   PresentationSubnets:
     Description: A list of the presentation subnets
     Value: !Join [ ",", [ !Ref PresentationSubnet1, !Ref PresentationSubnet2]]
@@ -370,7 +459,8 @@ Outputs:
   PresentationSubnet2:
     Description: A reference to the second presentation subnet
     Value: !Ref PresentationSubnet2
-  ApplicationSubnets:
+  
+   ApplicationSubnets:
     Description: A list of the application subnets
     Value: !Join [ ",", [ !Ref ApplicationSubnet1, !Ref ApplicationSubnet2]]
   ApplicationSubnet1:
@@ -379,6 +469,7 @@ Outputs:
   ApplicationSubnet2:
     Description: A reference to the second application subnet
     Value: !Ref ApplicationSubnet2
+
   DataSubnets:
     Description: A list of the data subnets
     Value: !Join [ ",", [ !Ref DataSubnet1, !Ref DataSubnet2]]
@@ -388,32 +479,52 @@ Outputs:
   DataSubnet2:
     Description: A reference to the second data subnet
     Value: !Ref DataSubnet2
+
   AvailabilityZones:
     Description: The Availability zones used
     Value: !Join [ ",", [ !GetAtt DataSubnet1.AvailabilityZone, !GetAtt DataSubnet2.AvailabilityZone]]
+
   PresentationSubnet1CIDR:
     Value: !Ref PresentationSubnet1CIDR
   PresentationSubnet2CIDR:
     Value: !Ref PresentationSubnet2CIDR
+  PresentationSubnet3CIDR:
+    Value: !Ref PresentationSubnet3CIDR
+
   ApplicationSubnet1CIDR:
     Value: !Ref ApplicationSubnet1CIDR
   ApplicationSubnet2CIDR:
     Value: !Ref ApplicationSubnet2CIDR
+  ApplicationSubnet3CIDR:
+    Value: !Ref ApplicationSubnet3CIDR
+
   DataSubnet1CIDR:
     Value: !Ref DataSubnet1CIDR
   DataSubnet2CIDR:
     Value: !Ref DataSubnet2CIDR
+  DataSubnet3CIDR:
+    Value: !Ref DataSubnet3CIDR
+
   PresentationSubnet1IPv6CIDR:
     Value: !Select [ 0, !GetAtt PresentationSubnet1.Ipv6CidrBlocks ]
   PresentationSubnet2IPv6CIDR:
     Value: !Select [ 0, !GetAtt PresentationSubnet2.Ipv6CidrBlocks]
+  PresentationSubnet3IPv6CIDR:
+    Value: !Select [ 0, !GetAtt PresentationSubnet3.Ipv6CidrBlocks]
+
   ApplicationSubnet1IPv6CIDR:
     Value: !Select [ 0, !GetAtt ApplicationSubnet1.Ipv6CidrBlocks]
   ApplicationSubnet2IPv6CIDR:
     Value: !Select [ 0, !GetAtt ApplicationSubnet2.Ipv6CidrBlocks]
+  ApplicationSubnet3IPv6CIDR:
+    Value: !Select [ 0, !GetAtt ApplicationSubnet3.Ipv6CidrBlocks]
+
   DataSubnet1IPv6CIDR:
     Value: !Select [ 0, !GetAtt DataSubnet1.Ipv6CidrBlocks]
   DataSubnet2IPv6CIDR:
     Value: !Select [ 0, !GetAtt DataSubnet2.Ipv6CidrBlocks]
+  DataSubnet3IPv6CIDR:
+    Value: !Select [ 0, !GetAtt DataSubnet3.Ipv6CidrBlocks]
+
   PrivateRouteTable:
     Value: !Ref PrivateRouteTable

@@ -1,20 +1,18 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Networking 101 Template
+Description: VPC 101 Template - Base VPC with IPv6
 
 Parameters:
-##Naming
   Project:
     Description: Please enter a descirption for this network
     Type: String
-    Default: "Networking 101"
-##VPC
+    Default: "VPC 101"
   VPCCIDR:
     Description: Please enter the IP range (CIDR notation) for this VPC
     Type: String
-    Default: 172.15.0.0/20
+    Default: 172.15.0.0/21
 
 Resources:
-##Base VPC
+
   VPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -26,7 +24,7 @@ Resources:
           Value: !Join [ "-", [ !Ref Project, VPC]]
         - Key: Project
           Value: !Ref Project
-##IPv6 Allocation
+
   VPCIpv6CIDR:
     Type: AWS::EC2::VPCCidrBlock
     Properties:
