@@ -1,9 +1,55 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: VPC 101 Template - Base VPC with IPv6, subnets, routing, flowlogs and VPC Endpoints
-
+Metadata: 
+  AWS::CloudFormation::Interface: 
+    ParameterGroups: 
+      - 
+        Label: 
+          default: "Project Naming"
+        Parameters: 
+          - Project
+      - 
+        Label: 
+          default: "Network Configuration"
+        Parameters: 
+          - VPCCIDR
+      - 
+        Label: 
+          default: "Presentation Network Configuration"
+        Parameters: 
+          - PresentationSubnet1CIDR
+          - PresentationSubnet2CIDR
+          - PresentationSubnet3CIDR
+      - 
+        Label: 
+          default: "Application Network Configuration"
+        Parameters: 
+          - ApplicationSubnet1CIDR
+          - ApplicationSubnet2CIDR
+          - ApplicationSubnet3CIDR
+      - 
+        Label: 
+          default: "Data Network Configuration"
+        Parameters: 
+          - DataSubnet1CIDR
+          - DataSubnet2CIDR
+          - DataSubnet3CIDR
+      -
+        Label:
+          default: "VPC Flow Log Configuration"
+        Parameters:
+          - FlowLogRetention
+          - FlowLogRetentionS3
+    ParameterLabels: 
+      Project:
+        default: "What is the purpose of the VPC?"
+      VPCCIDR: 
+        default: "What IPv4 range would you like to use for private subnets?"
+      FlowLogRetention:
+        default: "How long do you want to keep flow logs in cloudwatch"
 Parameters:
   Project:
-    Description: Please enter a descirption for this network
+    Description: Please enter a description for this network
     Type: String
     Default: "VPC 101"
   VPCCIDR:
@@ -46,7 +92,14 @@ Parameters:
     Description: Please enter the IP range (CIDR notation) for the private data subnet in the third Availability Zone
     Type: String
     Default: 172.15.3.0/25
-
+  FlowLogRetention:
+    Description: Please enter the number of days to keep logs in cloudwatch
+    Type: String
+    Default: 14
+  FlowLogRetentionS3:
+    Description: Please enter the number of days to keep logs in S3
+    Type: String
+    Default: 365
 Resources:
   VPC:
     Type: AWS::EC2::VPC
@@ -234,7 +287,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       AvailabilityZone: !Select [ 2, !GetAZs '' ]
-      CidrBlock: !Ref DataSubnet2CIDR
+      CidrBlock: !Ref DataSubnet3CIDR
       Ipv6CidrBlock:
         Fn::Sub:
           - "${VPCPart}${SubnetPart}"
@@ -309,20 +362,10 @@ Resources:
       RouteTableId: !Ref PrivateRouteTable
       SubnetId: !Ref DataSubnet3
 
-  CloudWatchLogGroup:
+  VPCFlowLogsGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      RetentionInDays: 14
-      LogGroupName:
-        !Join
-        - '-'
-        - - !Select
-            - '0'
-            - !Split [ ' ', !Ref Project ]
-          - !Select
-            - '1'
-            - !Split [ ' ', !Ref Project ]
-          - 'VPCFlowLogs'
+      RetentionInDays: !Ref FlowLogRetention
   IAMFlowLogPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
@@ -336,7 +379,15 @@ Resources:
               - logs:DescribeLogGroups
               - logs:DescribeLogStreams
               - logs:PutLogEvents
-            Resource: !GetAtt CloudWatchLogGroup.Arn
+            Resource: !GetAtt VPCFlowLogsGroup.Arn
+          - Effect: Allow
+            Action:
+               - kms:Encrypt
+               - kms:Decrypt
+               - kms:ReEncrypt*
+               - kms:GenerateDataKey*
+               - kms:DescribeKey
+            Resource: !GetAtt VPCFlowLogsKMSKey.Arn
       Roles:
         - Ref: IAMFlowLogRole
   IAMFlowLogRole:
@@ -350,14 +401,157 @@ Resources:
                 - vpc-flow-logs.amazonaws.com
             Action:
               - sts:AssumeRole
+  VPCFlowLogsKMSKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: Used by VPC Flow Logs to Encrypt/Decrypt data
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: "2012-10-17"
+        Id: S3-Dataretain
+        Statement:
+          -
+            Sid: Allows admin of the key
+            Effect: Allow
+            Principal:
+              AWS:
+                - !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - "kms:Create*"
+              - "kms:Describe*"
+              - "kms:Enable*"
+              - "kms:List*"
+              - "kms:Put*"
+              - "kms:Update*"
+              - "kms:Revoke*"
+              - "kms:Disable*"
+              - "kms:Get*"
+              - "kms:Delete*"
+              - "kms:ScheduleKeyDeletion"
+              - "kms:CancelKeyDeletion"
+            Resource: "*"
+          -
+            Sid: Allow use of the key for CloudWatch
+            Effect: Allow
+            Principal:
+              Service:
+                - cloudwatch.amazonaws.com
+                - !Sub logs.${AWS::Region}.amazonaws.com
+            Action:
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:DescribeKey
+              - kms:ListGrants
+            Resource: "*"
+          -
+            Sid: Enable FlowLogs Encrypt Permissions
+            Effect: Allow
+            Principal:
+              Service: delivery.logs.amazonaws.com
+            Action:
+              - kms:GenerateDataKey*
+              - kms:DescribeKey
+              - kms:Encrypt*
+              - kms:Decrypt*
+              - kms:ReEncrypt*
+            Resource: '*'
+  VPCFlowLogsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              KMSMasterKeyID: !GetAtt
+                - VPCFlowLogsKMSKey
+                - Arn
+              SSEAlgorithm: 'aws:kms'
+            BucketKeyEnabled: true
+      AccessControl: 'BucketOwnerFullControl'
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: True
+        BlockPublicPolicy: True
+        IgnorePublicAcls: True
+        RestrictPublicBuckets: True
+      LifecycleConfiguration:
+        Rules:
+        - Id: Expire
+          Status: Enabled
+          ExpirationInDays: !Ref FlowLogRetentionS3
+          AbortIncompleteMultipartUpload:
+            DaysAfterInitiation: 1
+          NoncurrentVersionExpirationInDays: 1
+  VPCFlowLogsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: VPCFlowLogsBucket
+      PolicyDocument:
+        Statement:
+        - Action:
+          - '*'
+          Effect: Deny
+          Resource:
+          - Fn::Join:
+            - ''
+            - - 'arn:aws:s3:::'
+              - Ref: VPCFlowLogsBucket
+          - Fn::Join:
+            - ''
+            - - 'arn:aws:s3:::'
+              - Ref: VPCFlowLogsBucket
+              - /*
+          Principal: '*'
+          Condition:
+            Bool:
+              aws:SecureTransport: false
+        - Action:
+          - s3:PutObject
+          Effect: Allow
+          Principal:
+            Service:
+              - delivery.logs.amazonaws.com
+          Resource:
+          - Fn::Join:
+            - ""
+            - - "arn:aws:s3:::"
+              - !Ref "VPCFlowLogsBucket"
+              - "/*"
+          Condition:
+            StringEquals:
+              's3:x-amz-acl': bucket-owner-full-control
+        - Action:
+          - s3:GetBucketAcl
+          - s3:ListBucket
+          Effect: Allow
+          Principal:
+            Service:
+              - delivery.logs.amazonaws.com
+          Resource:
+          - Fn::Join:
+            - ""
+            - - "arn:aws:s3:::"
+              - !Ref "VPCFlowLogsBucket"
   VPCFlowLogs:
     Type: AWS::EC2::FlowLog
     Properties:
-      LogGroupName: !Ref CloudWatchLogGroup
+      LogGroupName: !Ref VPCFlowLogsGroup
       ResourceId: !Ref VPC
-      ResourceType: VPC
+      ResourceType:  VPC
       TrafficType: ALL
       LogDestinationType: cloud-watch-logs
+      DeliverLogsPermissionArn: !GetAtt IAMFlowLogRole.Arn
+  VPCFlowLogsS3:
+    Type: AWS::EC2::FlowLog
+    Properties:
+      LogDestination: !GetAtt VPCFlowLogsBucket.Arn
+      ResourceId: !Ref VPC
+      ResourceType:  VPC
+      TrafficType: ALL
+      LogDestinationType: s3
       DeliverLogsPermissionArn: !GetAtt IAMFlowLogRole.Arn
 
   SSMEndpoint:
@@ -443,88 +637,137 @@ Resources:
       
 Outputs:
   VPC:
-    Description: A reference to the created VPC
+    Description: AWS reference to the created VPC
     Value: !Ref VPC
   VPCCIDR:
+    Description: IPv4 range for the created VPC
     Value: !Ref VPCCIDR
   VPCIpv6CIDR:
+    Description: IPv6 range for the created VPC
     Value: !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]
 
   PresentationSubnets:
     Description: A list of the presentation subnets
-    Value: !Join [ ",", [ !Ref PresentationSubnet1, !Ref PresentationSubnet2]]
+    Value: !Join [ ",", [ !Ref PresentationSubnet1, !Ref PresentationSubnet2, !Ref PresentationSubnet3]]
   PresentationSubnet1:
-    Description: A reference to the first presentation subnet
+    Description: AWS reference to the first presentation subnet
     Value: !Ref PresentationSubnet1
   PresentationSubnet2:
-    Description: A reference to the second presentation subnet
+    Description: AWS reference to the second presentation subnet
     Value: !Ref PresentationSubnet2
-  
-   ApplicationSubnets:
+  PresentationSubnet3:
+    Description: AWS reference to the third presentation subnet
+    Value: !Ref PresentationSubnet3
+    
+  ApplicationSubnets:
     Description: A list of the application subnets
-    Value: !Join [ ",", [ !Ref ApplicationSubnet1, !Ref ApplicationSubnet2]]
+    Value: !Join [ ",", [ !Ref ApplicationSubnet1, !Ref ApplicationSubnet2, !Ref ApplicationSubnet3]]
   ApplicationSubnet1:
-    Description: A reference to the first application subnet
+    Description: AWS reference to the first application subnet
     Value: !Ref ApplicationSubnet1
   ApplicationSubnet2:
-    Description: A reference to the second application subnet
+    Description: AWS reference to the second application subnet
     Value: !Ref ApplicationSubnet2
+  ApplicationSubnet3:
+    Description: AWS reference to the third application subnet
+    Value: !Ref ApplicationSubnet3
 
   DataSubnets:
     Description: A list of the data subnets
-    Value: !Join [ ",", [ !Ref DataSubnet1, !Ref DataSubnet2]]
+    Value: !Join [ ",", [ !Ref DataSubnet1, !Ref DataSubnet2, DataSubnet3]]
   DataSubnet1:
-    Description: A reference to the first data subnet
+    Description: AWS reference to the first data subnet
     Value: !Ref DataSubnet1
   DataSubnet2:
-    Description: A reference to the second data subnet
+    Description: AWS reference to the second data subnet
     Value: !Ref DataSubnet2
+  DataSubnet3:
+    Description: AWS reference to the third data subnet
+    Value: !Ref DataSubnet3
 
   AvailabilityZones:
     Description: The Availability zones used
-    Value: !Join [ ",", [ !GetAtt DataSubnet1.AvailabilityZone, !GetAtt DataSubnet2.AvailabilityZone]]
+    Value: !Join [ ",", [ !GetAtt DataSubnet1.AvailabilityZone, !GetAtt DataSubnet2.AvailabilityZone, !GetAtt DataSubnet3.AvailabilityZone]]
 
   PresentationSubnet1CIDR:
+    Description: IPv4 range for Presentation Subnet 1
     Value: !Ref PresentationSubnet1CIDR
   PresentationSubnet2CIDR:
+    Description: IPv4 range for Presentation Subnet 2
     Value: !Ref PresentationSubnet2CIDR
   PresentationSubnet3CIDR:
+    Description: IPv4 range for Presentation Subnet 3
     Value: !Ref PresentationSubnet3CIDR
 
   ApplicationSubnet1CIDR:
+    Description: IPv4 range for Application Subnet 1
     Value: !Ref ApplicationSubnet1CIDR
   ApplicationSubnet2CIDR:
+    Description: IPv4 range for Application Subnet 2
     Value: !Ref ApplicationSubnet2CIDR
   ApplicationSubnet3CIDR:
+    Description: IPv4 range for Application Subnet 3
     Value: !Ref ApplicationSubnet3CIDR
 
   DataSubnet1CIDR:
+    Description: IPv4 range for Data Subnet 1
     Value: !Ref DataSubnet1CIDR
   DataSubnet2CIDR:
+    Description: IPv4 range for Data Subnet 2
     Value: !Ref DataSubnet2CIDR
   DataSubnet3CIDR:
+    Description: IPv4 range for Data Subnet 3
     Value: !Ref DataSubnet3CIDR
 
   PresentationSubnet1IPv6CIDR:
+    Description: IPv6 range for Presentation Subnet 1
     Value: !Select [ 0, !GetAtt PresentationSubnet1.Ipv6CidrBlocks ]
   PresentationSubnet2IPv6CIDR:
+    Description: IPv6 range for Presentation Subnet 2
     Value: !Select [ 0, !GetAtt PresentationSubnet2.Ipv6CidrBlocks]
   PresentationSubnet3IPv6CIDR:
+    Description: IPv6 range for Presentation Subnet 3
     Value: !Select [ 0, !GetAtt PresentationSubnet3.Ipv6CidrBlocks]
 
   ApplicationSubnet1IPv6CIDR:
+    Description: IPv6 range for Application Subnet 1
     Value: !Select [ 0, !GetAtt ApplicationSubnet1.Ipv6CidrBlocks]
   ApplicationSubnet2IPv6CIDR:
+    Description: IPv6 range for Application Subnet 2
     Value: !Select [ 0, !GetAtt ApplicationSubnet2.Ipv6CidrBlocks]
   ApplicationSubnet3IPv6CIDR:
+    Description: IPv6 range for Application Subnet 3
     Value: !Select [ 0, !GetAtt ApplicationSubnet3.Ipv6CidrBlocks]
 
   DataSubnet1IPv6CIDR:
+    Description: IPv6 range for Data Subnet 2
     Value: !Select [ 0, !GetAtt DataSubnet1.Ipv6CidrBlocks]
   DataSubnet2IPv6CIDR:
+    Description: IPv6 range for Data Subnet 2
     Value: !Select [ 0, !GetAtt DataSubnet2.Ipv6CidrBlocks]
   DataSubnet3IPv6CIDR:
+    Description: IPv6 range for Data Subnet 2
     Value: !Select [ 0, !GetAtt DataSubnet3.Ipv6CidrBlocks]
-
+  
   PrivateRouteTable:
+    Description: AWS reference for Private Route Table
     Value: !Ref PrivateRouteTable
+
+  VPCFlowLogs:
+    Description: AWS reference for the VPC Flow Logs
+    Value: !Ref VPCFlowLogs
+  VPCFlowLogsGroup:
+    Description: VPC Flow Logs Log Group
+    Value: !Ref VPCFlowLogsGroup
+  VPCFlowLogsRole:
+    Description: VPC Flow Logs Role
+    Value: !Ref IAMFlowLogRole
+  VPCFlowLogsRoleARN:
+    Description: AWS reference for the VPC Flow Logs Role 
+    Value: !GetAtt IAMFlowLogRole.Arn
+  VPCFlowLogsPolicy:
+    Description: VPC Flow Logs Role
+    Value: !Ref IAMFlowLogPolicy
+  VPCFlowLogsKMSKey:
+    Description: KMS Key to encrypt flow logs.
+    Value: !Ref VPCFlowLogsKMSKey

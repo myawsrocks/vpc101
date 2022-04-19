@@ -1,6 +1,23 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: VPC 101 Template - Base VPC with IPv6
-
+Metadata: 
+  AWS::CloudFormation::Interface: 
+    ParameterGroups: 
+      - 
+        Label: 
+          default: "Project Naming"
+        Parameters: 
+          - Project
+    - 
+        Label: 
+          default: "Network Configuration"
+        Parameters: 
+          - VPCCIDR
+    ParameterLabels: 
+      VPCCIDR:
+        default: "What is the purpose of the VPC?"
+      VPCCIDR: 
+        default: "What IPv4 range would you like to use for private subnets?"
 Parameters:
   Project:
     Description: Please enter a descirption for this network
@@ -33,9 +50,11 @@ Resources:
 
 Outputs:
   VPC:
-    Description: A reference to the created VPC
+    Description: AWS reference to the created VPC
     Value: !Ref VPC
   VPCCIDR:
+    Description: IPv4 range for the created VPC
     Value: !Ref VPCCIDR
   VPCIpv6CIDR:
+    Description: IPv6 range for the created VPC
     Value: !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]
