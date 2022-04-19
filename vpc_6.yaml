@@ -55,43 +55,43 @@ Parameters:
   VPCCIDR:
     Description: Please enter the IP range (CIDR notation) for this VPC
     Type: String
-    Default: 172.15.0.0/21
+    Default: 172.16.0.0/21
   PresentationSubnet1CIDR:
     Description: Please enter the IP range (CIDR notation) for the private presentation subnet in the first Availability Zone
     Type: String
-    Default: 172.15.0.0/25
+    Default: 172.16.0.0/25
   PresentationSubnet2CIDR:
     Description: Please enter the IP range (CIDR notation) for the private presentation subnet in the second Availability Zone
     Type: String
-    Default: 172.15.0.128/25
+    Default: 172.16.0.128/25
   PresentationSubnet3CIDR:
     Description: Please enter the IP range (CIDR notation) for the private presentation subnet in the third Availability Zone
     Type: String
-    Default: 172.15.1.0/25
+    Default: 172.16.1.0/25
   ApplicationSubnet1CIDR:
     Description: Please enter the IP range (CIDR notation) for the private application subnet in the first Availability Zone
     Type: String
-    Default: 172.15.4.0/24
+    Default: 172.16.4.0/24
   ApplicationSubnet2CIDR:
     Description: Please enter the IP range (CIDR notation) for the private application subnet in the second Availability Zone
     Type: String
-    Default: 172.15.5.0/24
+    Default: 172.16.5.0/24
   ApplicationSubnet3CIDR:
     Description: Please enter the IP range (CIDR notation) for the private application subnet in the third Availability Zone
     Type: String
-    Default: 172.15.6.0/24
+    Default: 172.16.6.0/24
   DataSubnet1CIDR:
     Description: Please enter the IP range (CIDR notation) for the private data subnet in the first Availability Zone
     Type: String
-    Default: 172.15.2.0/25
+    Default: 172.16.2.0/25
   DataSubnet2CIDR:
     Description: Please enter the IP range (CIDR notation) for the private data subnet in the second Availability Zone
     Type: String
-    Default: 172.15.2.128/25
+    Default: 172.16.2.128/25
   DataSubnet3CIDR:
     Description: Please enter the IP range (CIDR notation) for the private data subnet in the third Availability Zone
     Type: String
-    Default: 172.15.3.0/25
+    Default: 172.16.3.0/25
   FlowLogRetention:
     Description: Please enter the number of days to keep logs in cloudwatch
     Type: String

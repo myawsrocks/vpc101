@@ -57,23 +57,32 @@ At the end of the deployment you will have a VPC spanning multiple Availability 
 
 ###Components built with the solution are:
 <ol>
-<li>VPC - vpc_1.yaml</li>
-<li>IPv6 Range - vpc_2.yaml</li>
-<li>Subnets - vpc_3.yaml</li>
+<li>Create an empty VPC with an IPv4 CIDR range - vpc_1.yaml</li>
+<li>Create an IPv6 CIDR range and associate to the VPC - vpc_2.yaml</li>
+<li>Create 9 private subnets with IPv4 and IPv6 IP ranges allocated: - vpc_3.yaml</li>
     <ul>
-    <li>Public</li>
-    <li>Presentation</li>
-    <li>Application</li>
-    <li>Data</li>
+    <li>3x Presentation</li>
+    <li>3x Application</li>
+    <li>3x Data</li>
     </ul>
-<li>Route Table - vpc_4.yaml</li>
-<li>VPC Flow Logs - vpc_5.yaml</li>
-<li>VPC Endpoints for AWS Services - vpc_6.yaml</li>
+<li>Create a private route tables and associate to the private subnets - vpc_4.yaml</li>
+<li>Enable VPC Flow Logs and send to encrypted S3 Bucket and encrypted CloudWatch Log Group - vpc_5.yaml</li>
+<li>Deploy VPC Endpoints for common AWS Services - vpc_6.yaml</li>
+    <ul>
+    <li>Systems Manager (ssm)</li>
+    <li>Systems Manager Messages (ssmmessages)</li>
+    <li>CloudWatch Metrics (monitoring)</li>
+    <li>CloudWatch Logs (logs)</li>
+    <li>Simple Token Service (sts)</li>
+    </ul>
 <li>Internet Routing - vpc_7.yaml</li>
     <ul>
-    <li>Internet Gateway</li>
-    <li>Public NAT Gateway</li>
-    <li>Egress Only Internet Gateway:</li>
+    <li>3x Public Subnets</li>
+    <li>Public Route Table</li>
+    <li>Internet Gateway (IPv4 and IPv6)</li>
+    <li>NAT Gateway (IPv4)</li>
+    <li>Egress Only Internet Gateway (IPv6)</li>
+    <li>3x Private Route Tables</li>
     </ul>
 </ol>
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -146,7 +155,8 @@ See the [open issues](https://github.com/myawsrocks/vpc101/issues) for a full li
 <!-- CONTRIBUTING -->
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are what make the open source community such an amazing place to learn, inspire, and create.</br>
+Any contributions you make are **greatly appreciated**.
 
 If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
 Don't forget to give the project a star! Thanks again!
@@ -156,7 +166,6 @@ Don't forget to give the project a star! Thanks again!
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-6. 
 <p align="right">(<a href="#top">back to top</a>)</p>
 <!-- LICENSE -->
 

@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: VPC 101 Template - Base VPC with IPv6, subnets, routing and flowlogs
+Description: VPC 101 Template - Base VPC with IPv6, subnets, routing, flowlogs, VPC Endpoints and Public Subnets with internet access
 Metadata: 
   AWS::CloudFormation::Interface: 
     ParameterGroups: 
@@ -34,6 +34,13 @@ Metadata:
           - DataSubnet1CIDR
           - DataSubnet2CIDR
           - DataSubnet3CIDR
+      - 
+        Label: 
+          default: "Public Network Configuration"
+        Parameters: 
+          - PublicSubnet1CIDR
+          - PublicSubnet2CIDR
+          - PublicSubnet3CIDR
       -
         Label:
           default: "VPC Flow Log Configuration"
@@ -55,7 +62,7 @@ Parameters:
   VPCCIDR:
     Description: Please enter the IP range (CIDR notation) for this VPC
     Type: String
-    Default: 172.16.0.0/21
+    Default: 172.16.0.0/20
   PresentationSubnet1CIDR:
     Description: Please enter the IP range (CIDR notation) for the private presentation subnet in the first Availability Zone
     Type: String
@@ -100,6 +107,19 @@ Parameters:
     Description: Please enter the number of days to keep logs in S3
     Type: String
     Default: 365
+  PublicSubnet1CIDR:
+    Description: Please enter the IP range (CIDR notation) for the public subnet in the first Availability Zone
+    Type: String
+    Default: 172.16.8.0/23
+  PublicSubnet2CIDR:
+    Description: Please enter the IP range (CIDR notation) for the public subnet in the second Availability Zone
+    Type: String
+    Default: 172.16.10.0/23
+  PublicSubnet3CIDR:
+    Description: Please enter the IP range (CIDR notation) for the public subnet in the third Availability Zone
+    Type: String
+    Default: 172.16.12.0/23
+
 Resources:
   VPC:
     Type: AWS::EC2::VPC
@@ -302,13 +322,96 @@ Resources:
         - Key:  Tier
           Value: Data
 
-  PrivateRouteTable:
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    DependsOn: VPCIpv6CIDR
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: !Ref PublicSubnet1CIDR
+      Ipv6CidrBlock:
+        Fn::Sub:
+          - "${VPCPart}${SubnetPart}"
+          - SubnetPart: 'c0::/64'
+            VPCPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, PublicSubnet1]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: "External Presentation"
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    DependsOn: VPCIpv6CIDR
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      CidrBlock: !Ref PublicSubnet2CIDR
+      Ipv6CidrBlock:
+        Fn::Sub:
+          - "${VPCPart}${SubnetPart}"
+          - SubnetPart: 'c1::/64'
+            VPCPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, PublicSubnet2]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: "External Presentation"
+  PublicSubnet3:
+    Type: AWS::EC2::Subnet
+    DependsOn: VPCIpv6CIDR
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 2, !GetAZs '' ]
+      CidrBlock: !Ref PublicSubnet3CIDR
+      Ipv6CidrBlock:
+        Fn::Sub:
+          - "${VPCPart}${SubnetPart}"
+          - SubnetPart: 'c2::/64'
+            VPCPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, PublicSubnet3]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: "External Presentation"
+
+  PrivateRouteTable1:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Join [ "-", [ !Ref Project, RouteTable]]
+          Value: !Join [ "-", [ !Ref Project, RouteTable1]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Networking
+  PrivateRouteTable2:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, RouteTable2]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Networking
+  PrivateRouteTable3:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, RouteTable3]]
         - Key: Project
           Value: !Ref Project
         - Key:  Tier
@@ -317,50 +420,234 @@ Resources:
   PresentationSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref PrivateRouteTable
+      RouteTableId: !Ref PrivateRouteTable1
       SubnetId: !Ref PresentationSubnet1
   PresentationSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref PrivateRouteTable
+      RouteTableId: !Ref PrivateRouteTable2
       SubnetId: !Ref PresentationSubnet2
   PresentationSubnet3RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref PrivateRouteTable
+      RouteTableId: !Ref PrivateRouteTable3
       SubnetId: !Ref PresentationSubnet3
 
   ApplicationSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref PrivateRouteTable
+      RouteTableId: !Ref PrivateRouteTable1
       SubnetId: !Ref ApplicationSubnet1
   ApplicationSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref PrivateRouteTable
+      RouteTableId: !Ref PrivateRouteTable2
       SubnetId: !Ref ApplicationSubnet2
   ApplicationSubnet3RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref PrivateRouteTable
+      RouteTableId: !Ref PrivateRouteTable3
       SubnetId: !Ref ApplicationSubnet3
 
   DataSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref PrivateRouteTable
+      RouteTableId: !Ref PrivateRouteTable1
       SubnetId: !Ref DataSubnet1
   DataSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref PrivateRouteTable
+      RouteTableId: !Ref PrivateRouteTable2
       SubnetId: !Ref DataSubnet2
   DataSubnet3RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref PrivateRouteTable
+      RouteTableId: !Ref PrivateRouteTable3
       SubnetId: !Ref DataSubnet3
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, PublicRouteTable]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Networking
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet1
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet2
+  PublicSubnet3RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet3
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, InternetGateway]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Networking
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+  PublicIP4InternetRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+  PublicIP6InternetRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationIpv6CidrBlock: ::/0
+      GatewayId: !Ref InternetGateway
+
+  EgressOnlyInternetGateway:
+    Type: AWS::EC2::EgressOnlyInternetGateway
+    Properties:
+      VpcId: !Ref VPC
+  PrivateIP6InternetRoute1:
+    Type: AWS::EC2::Route
+    DependsOn: EgressOnlyInternetGateway
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable1
+      DestinationIpv6CidrBlock: ::/0
+      EgressOnlyInternetGatewayId: !Ref EgressOnlyInternetGateway
+  PrivateIP6InternetRoute2:
+    Type: AWS::EC2::Route
+    DependsOn: EgressOnlyInternetGateway
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable2
+      DestinationIpv6CidrBlock: ::/0
+      EgressOnlyInternetGatewayId: !Ref EgressOnlyInternetGateway
+  PrivateIP6InternetRoute3:
+    Type: AWS::EC2::Route
+    DependsOn: EgressOnlyInternetGateway
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable3
+      DestinationIpv6CidrBlock: ::/0
+      EgressOnlyInternetGatewayId: !Ref EgressOnlyInternetGateway
+
+  NATGateway1EIP:
+    DependsOn: InternetGatewayAttachment
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, NATGateway1EIP]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Networking
+  NATGateway1:
+    DependsOn: InternetGatewayAttachment
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NATGateway1EIP.AllocationId
+      ConnectivityType: public
+      SubnetId: !Ref PublicSubnet1
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, NATGateway1]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Networking
+  NATGateway2EIP:
+    DependsOn: InternetGatewayAttachment
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, NATGateway2EIP]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Networking
+  NATGateway2:
+    DependsOn: InternetGatewayAttachment
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NATGateway2EIP.AllocationId
+      ConnectivityType: public
+      SubnetId: !Ref PublicSubnet2
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, NATGateway2]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Networking
+  NATGateway3EIP:
+    DependsOn: InternetGatewayAttachment
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, NATGateway3EIP]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Networking
+  NATGateway3:
+    DependsOn: InternetGatewayAttachment
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NATGateway3EIP.AllocationId
+      ConnectivityType: public
+      SubnetId: !Ref PublicSubnet3
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, NATGateway3]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Networking
+
+  PrivateIP4InternetRoute1:
+    Type: AWS::EC2::Route
+    DependsOn: NATGateway1
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable1
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NATGateway1
+  PrivateIP4InternetRoute2:
+    Type: AWS::EC2::Route
+    DependsOn: NATGateway2
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable2
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NATGateway2
+  PrivateIP4InternetRoute3:
+    Type: AWS::EC2::Route
+    DependsOn: NATGateway3
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable3
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NATGateway3
 
   VPCFlowLogsGroup:
     Type: AWS::Logs::LogGroup
@@ -554,6 +841,87 @@ Resources:
       LogDestinationType: s3
       DeliverLogsPermissionArn: !GetAtt IAMFlowLogRole.Arn
 
+  SSMEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcEndpointType: Interface
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action:
+              - 'ssm:*'
+            Resource:
+              - '*'
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.ssm'
+      PrivateDnsEnabled: true
+      VpcId: !Ref VPC
+  SSMmessagesEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcEndpointType: Interface
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action:
+              - 'ssmmessages:*'
+            Resource:
+              - '*'
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.ssmmessages'
+      PrivateDnsEnabled: true
+      VpcId: !Ref VPC
+  CloudWatchEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcEndpointType: Interface
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action:
+              - 'monitoring:*'
+            Resource:
+              - '*'
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.monitoring'
+      PrivateDnsEnabled: true
+      VpcId: !Ref VPC
+  CloudWatchLogsEndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      VpcEndpointType: Interface
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action:
+              - 'logs:*'
+            Resource:
+              - '*'
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.logs'
+      PrivateDnsEnabled: true
+      VpcId: !Ref VPC
+  STSEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcEndpointType: Interface
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action:
+              - 'sts:*'
+            Resource:
+              - '*'
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.sts'
+      PrivateDnsEnabled: true
+      VpcId: !Ref VPC
+
 Outputs:
   VPC:
     Description: AWS reference to the created VPC
@@ -638,6 +1006,16 @@ Outputs:
     Description: IPv4 range for Data Subnet 3
     Value: !Ref DataSubnet3CIDR
 
+  PublicSubnet1CIDR:
+    Description: IPv4 range for Public Subnet 1
+    Value: !Ref PublicSubnet1CIDR
+  PublicSubnet2CIDR:
+    Description: IPv4 range for Public Subnet 2
+    Value: !Ref PublicSubnet2CIDR
+  PublicSubnet3CIDR:
+    Description: IPv4 range for Public Subnet 3
+    Value: !Ref PublicSubnet3CIDR
+
   PresentationSubnet1IPv6CIDR:
     Description: IPv6 range for Presentation Subnet 1
     Value: !Select [ 0, !GetAtt PresentationSubnet1.Ipv6CidrBlocks ]
@@ -668,25 +1046,15 @@ Outputs:
     Description: IPv6 range for Data Subnet 2
     Value: !Select [ 0, !GetAtt DataSubnet3.Ipv6CidrBlocks]
   
-  PrivateRouteTable:
-    Description: AWS reference for Private Route Table
-    Value: !Ref PrivateRouteTable
-
-  VPCFlowLogs:
-    Description: AWS reference for the VPC Flow Logs
-    Value: !Ref VPCFlowLogs
-  VPCFlowLogsGroup:
-    Description: VPC Flow Logs Log Group
-    Value: !Ref VPCFlowLogsGroup
-  VPCFlowLogsRole:
-    Description: VPC Flow Logs Role
-    Value: !Ref IAMFlowLogRole
-  VPCFlowLogsRoleARN:
-    Description: AWS reference for the VPC Flow Logs Role 
-    Value: !GetAtt IAMFlowLogRole.Arn
-  VPCFlowLogsPolicy:
-    Description: VPC Flow Logs Role
-    Value: !Ref IAMFlowLogPolicy
-  VPCFlowLogsKMSKey:
-    Description: KMS Key to encrypt flow logs.
-    Value: !Ref VPCFlowLogsKMSKey
+  PrivateRouteTable1:
+    Description: AWS reference for Private Route Table 1
+    Value: !Ref PrivateRouteTable1
+  PrivateRouteTable2:
+    Description: AWS reference for Private Route Table 2
+    Value: !Ref PrivateRouteTable2
+  PrivateRouteTable3:
+    Description: AWS reference for Private Route Table 3
+    Value: !Ref PrivateRouteTable3
+  PublicRouteTable:
+    Description: AWS reference for Public Route Table
+    Value: !Ref PublicRouteTable

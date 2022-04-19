@@ -26,7 +26,7 @@ Parameters:
   VPCCIDR:
     Description: Please enter the IP range (CIDR notation) for this VPC
     Type: String
-    Default: 172.15.0.0/21
+    Default: 172.16.0.0/21
 
 Resources:
 
