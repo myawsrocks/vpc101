@@ -181,11 +181,11 @@ Distributed under the GPL3 License. See [license file](LICENSE) for more informa
 [contributors-url]: https://github.com/myawsrocks/vpc101/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/myawsrocks/vpc101.svg?style=plastic&logo=appveyor
 [forks-url]: https://github.com/myawsrocks/vpc101/network/members
-[stars-shield]: https://img.shields.io/github/stars/github_username/repo_name.svg?style=plastic&logo=appveyor
+[stars-shield]: https://img.shields.io/github/stars/myawsrocks/vpc101.svg?style=plastic&logo=appveyor
 [stars-url]: https://github.com/myawsrocks/vpc101/stargazers
-[issues-shield]: https://img.shields.io/github/issues/github_username/repo_name.svg?style=plastic&logo=appveyor
+[issues-shield]: https://img.shields.io/github/issues/myawsrocks/vpc101.svg?style=plastic&logo=appveyor
 [issues-url]: https://github.com/myawsrocks/vpc101/issues
-[license-shield]: https://img.shields.io/github/license/github_username/repo_name.svg?style=plastic&logo=appveyor
+[license-shield]: https://img.shields.io/github/license/myawsrocks/vpc101.svg?style=plastic&logo=appveyor
 [license-url]: https://github.com/myawsrocks/vpc101/blob/master/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=social&logo=linkedin&color=blue
 [linkedin-url]: https://linkedin.com/in/robinwford/
