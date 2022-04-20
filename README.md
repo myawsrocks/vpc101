@@ -130,16 +130,9 @@ So in a month with 31 days (744 hours) that equates to <b>$157</b> just to have 
 So, once you've taken a look around what's been provisioned go back to the cloudformation stack and delete. 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-<!--USAGE EXAMPLES
-## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
-
-<p align="right">(<a href="#top">back to top</a>)</p>
--->
 <!-- ROADMAP -->
+
 ## Roadmap
 
 - [ ] Alternate NAT options
@@ -147,12 +140,13 @@ _For more examples, please refer to the [Documentation](https://example.com)_
   - [ ] Reduced redundancy NAT Gateway
   - [ ] Reduced redundancy EC2 based NAT
 - [ ] IPv6 only subnets
-  - [ ] 
+  - [ ] IPv6 to IPv4 translation
 
 See the [open issues](https://github.com/myawsrocks/vpc101/issues) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 <!-- CONTRIBUTING -->
+
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create.</br>
