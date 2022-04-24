@@ -119,6 +119,20 @@ Parameters:
     Description: Please enter the IP range (CIDR notation) for the public subnet in the third Availability Zone
     Type: String
     Default: 172.16.12.0/23
+  ReducedNAT:
+    Description: Do you want to deploy the NAT Gateway to a single VPC
+    Type: String
+    Default: "No"
+    ConstraintDescription: Must be either Yes or No
+    AllowedValues: ["Yes", "No"]
+
+Conditions:
+  SingleNAT: !Equals
+    - !Ref ReducedNAT
+    - Yes
+  MultiNAT: !Equals
+    - !Ref ReducedNAT
+    - No
 
 Resources:
   VPC:
@@ -385,6 +399,7 @@ Resources:
 
   PrivateRouteTable1:
     Type: AWS::EC2::RouteTable
+    Condition: MultiNAT
     Properties:
       VpcId: !Ref VPC
       Tags:
@@ -396,6 +411,7 @@ Resources:
           Value: Networking
   PrivateRouteTable2:
     Type: AWS::EC2::RouteTable
+    Condition: MultiNAT
     Properties:
       VpcId: !Ref VPC
       Tags:
@@ -407,6 +423,7 @@ Resources:
           Value: Networking
   PrivateRouteTable3:
     Type: AWS::EC2::RouteTable
+    Condition: MultiNAT
     Properties:
       VpcId: !Ref VPC
       Tags:
@@ -416,53 +433,131 @@ Resources:
           Value: !Ref Project
         - Key:  Tier
           Value: Networking
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Condition: SingleNAT
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, RouteTable]]
+        - Key: Project
+          Value: !Ref Project
+        - Key:  Tier
+          Value: Networking
 
   PresentationSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: MultiNAT
     Properties:
       RouteTableId: !Ref PrivateRouteTable1
       SubnetId: !Ref PresentationSubnet1
   PresentationSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: MultiNAT
     Properties:
       RouteTableId: !Ref PrivateRouteTable2
       SubnetId: !Ref PresentationSubnet2
   PresentationSubnet3RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: MultiNAT
     Properties:
       RouteTableId: !Ref PrivateRouteTable3
       SubnetId: !Ref PresentationSubnet3
 
   ApplicationSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: MultiNAT
     Properties:
       RouteTableId: !Ref PrivateRouteTable1
       SubnetId: !Ref ApplicationSubnet1
   ApplicationSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: MultiNAT
     Properties:
       RouteTableId: !Ref PrivateRouteTable2
       SubnetId: !Ref ApplicationSubnet2
   ApplicationSubnet3RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: MultiNAT
     Properties:
       RouteTableId: !Ref PrivateRouteTable3
       SubnetId: !Ref ApplicationSubnet3
 
   DataSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: MultiNAT
     Properties:
       RouteTableId: !Ref PrivateRouteTable1
       SubnetId: !Ref DataSubnet1
   DataSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: MultiNAT
     Properties:
       RouteTableId: !Ref PrivateRouteTable2
       SubnetId: !Ref DataSubnet2
   DataSubnet3RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: MultiNAT
     Properties:
       RouteTableId: !Ref PrivateRouteTable3
+      SubnetId: !Ref DataSubnet3
+
+  PresentationSubnet1RouteTableAssociationSingleNAT:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: SingleNAT
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PresentationSubnet1
+  PresentationSubnet2RouteTableAssociationSingleNAT:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: SingleNAT
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PresentationSubnet2
+  PresentationSubnet3RouteTableAssociationSingleNAT:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: SingleNAT
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PresentationSubnet3
+
+  ApplicationSubnet1RouteTableAssociationSingleNAT:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: SingleNAT
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref ApplicationSubnet1
+  ApplicationSubnet2RouteTableAssociationSingleNAT:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: SingleNAT
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref ApplicationSubnet2
+  ApplicationSubnet3RouteTableAssociationSingleNAT:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: SingleNAT
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref ApplicationSubnet3
+
+  DataSubnet1RouteTableAssociationSingleNAT:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: SingleNAT
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref DataSubnet1
+  DataSubnet2RouteTableAssociationSingleNAT:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: SingleNAT
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref DataSubnet2
+  DataSubnet3RouteTableAssociationSingleNAT:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: SingleNAT
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
       SubnetId: !Ref DataSubnet3
 
   PublicRouteTable:
@@ -528,6 +623,7 @@ Resources:
       VpcId: !Ref VPC
   PrivateIP6InternetRoute1:
     Type: AWS::EC2::Route
+    Condition: MultiNAT
     DependsOn: EgressOnlyInternetGateway
     Properties:
       RouteTableId: !Ref PrivateRouteTable1
@@ -535,6 +631,7 @@ Resources:
       EgressOnlyInternetGatewayId: !Ref EgressOnlyInternetGateway
   PrivateIP6InternetRoute2:
     Type: AWS::EC2::Route
+    Condition: MultiNAT
     DependsOn: EgressOnlyInternetGateway
     Properties:
       RouteTableId: !Ref PrivateRouteTable2
@@ -542,9 +639,18 @@ Resources:
       EgressOnlyInternetGatewayId: !Ref EgressOnlyInternetGateway
   PrivateIP6InternetRoute3:
     Type: AWS::EC2::Route
+    Condition: MultiNAT
     DependsOn: EgressOnlyInternetGateway
     Properties:
       RouteTableId: !Ref PrivateRouteTable3
+      DestinationIpv6CidrBlock: ::/0
+      EgressOnlyInternetGatewayId: !Ref EgressOnlyInternetGateway
+  PrivateIP6InternetRoute:
+    Type: AWS::EC2::Route
+    Condition: SingleNAT
+    DependsOn: EgressOnlyInternetGateway
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
       DestinationIpv6CidrBlock: ::/0
       EgressOnlyInternetGatewayId: !Ref EgressOnlyInternetGateway
 
@@ -576,6 +682,7 @@ Resources:
           Value: Networking
   NATGateway2EIP:
     DependsOn: InternetGatewayAttachment
+    Condition: MultiNAT
     Type: AWS::EC2::EIP
     Properties:
       Domain: vpc
@@ -588,6 +695,7 @@ Resources:
           Value: Networking
   NATGateway2:
     DependsOn: InternetGatewayAttachment
+    Condition: MultiNAT
     Type: AWS::EC2::NatGateway
     Properties:
       AllocationId: !GetAtt NATGateway2EIP.AllocationId
@@ -602,6 +710,7 @@ Resources:
           Value: Networking
   NATGateway3EIP:
     DependsOn: InternetGatewayAttachment
+    Condition: MultiNAT
     Type: AWS::EC2::EIP
     Properties:
       Domain: vpc
@@ -614,6 +723,7 @@ Resources:
           Value: Networking
   NATGateway3:
     DependsOn: InternetGatewayAttachment
+    Condition: MultiNAT
     Type: AWS::EC2::NatGateway
     Properties:
       AllocationId: !GetAtt NATGateway3EIP.AllocationId
@@ -629,6 +739,7 @@ Resources:
 
   PrivateIP4InternetRoute1:
     Type: AWS::EC2::Route
+    Condition: MultiNAT
     DependsOn: NATGateway1
     Properties:
       RouteTableId: !Ref PrivateRouteTable1
@@ -636,6 +747,7 @@ Resources:
       NatGatewayId: !Ref NATGateway1
   PrivateIP4InternetRoute2:
     Type: AWS::EC2::Route
+    Condition: MultiNAT
     DependsOn: NATGateway2
     Properties:
       RouteTableId: !Ref PrivateRouteTable2
@@ -643,11 +755,20 @@ Resources:
       NatGatewayId: !Ref NATGateway2
   PrivateIP4InternetRoute3:
     Type: AWS::EC2::Route
+    Condition: MultiNAT
     DependsOn: NATGateway3
     Properties:
       RouteTableId: !Ref PrivateRouteTable3
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref NATGateway3
+  PrivateIP4InternetRoute:
+    Type: AWS::EC2::Route
+    Condition: SingleNAT
+    DependsOn: NATGateway1
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NATGateway1
 
   VPCFlowLogsGroup:
     Type: AWS::Logs::LogGroup
@@ -857,6 +978,10 @@ Resources:
       ServiceName: !Sub 'com.amazonaws.${AWS::Region}.ssm'
       PrivateDnsEnabled: true
       VpcId: !Ref VPC
+      SubnetIds:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+        - !Ref PublicSubnet3
   SSMmessagesEndpoint:
     Type: AWS::EC2::VPCEndpoint
     Properties:
@@ -873,6 +998,10 @@ Resources:
       ServiceName: !Sub 'com.amazonaws.${AWS::Region}.ssmmessages'
       PrivateDnsEnabled: true
       VpcId: !Ref VPC
+      SubnetIds:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+        - !Ref PublicSubnet3
   CloudWatchEndpoint:
     Type: AWS::EC2::VPCEndpoint
     Properties:
@@ -889,6 +1018,10 @@ Resources:
       ServiceName: !Sub 'com.amazonaws.${AWS::Region}.monitoring'
       PrivateDnsEnabled: true
       VpcId: !Ref VPC
+      SubnetIds:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+        - !Ref PublicSubnet3
   CloudWatchLogsEndpoint:
     Type: 'AWS::EC2::VPCEndpoint'
     Properties:
@@ -905,6 +1038,10 @@ Resources:
       ServiceName: !Sub 'com.amazonaws.${AWS::Region}.logs'
       PrivateDnsEnabled: true
       VpcId: !Ref VPC
+      SubnetIds:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+        - !Ref PublicSubnet3
   STSEndpoint:
     Type: AWS::EC2::VPCEndpoint
     Properties:
@@ -921,6 +1058,10 @@ Resources:
       ServiceName: !Sub 'com.amazonaws.${AWS::Region}.sts'
       PrivateDnsEnabled: true
       VpcId: !Ref VPC
+      SubnetIds:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+        - !Ref PublicSubnet3
 
 Outputs:
   VPC:
@@ -1047,14 +1188,21 @@ Outputs:
     Value: !Select [ 0, !GetAtt DataSubnet3.Ipv6CidrBlocks]
   
   PrivateRouteTable1:
+    Condition: MultiNAT
     Description: AWS reference for Private Route Table 1
     Value: !Ref PrivateRouteTable1
   PrivateRouteTable2:
+    Condition: MultiNAT
     Description: AWS reference for Private Route Table 2
     Value: !Ref PrivateRouteTable2
   PrivateRouteTable3:
+    Condition: MultiNAT
     Description: AWS reference for Private Route Table 3
     Value: !Ref PrivateRouteTable3
+  PrivateRouteTable:
+    Condition: SingleNAT
+    Description: AWS reference for Private Route Table 3
+    Value: !Ref PrivateRouteTable
   PublicRouteTable:
     Description: AWS reference for Public Route Table
     Value: !Ref PublicRouteTable
