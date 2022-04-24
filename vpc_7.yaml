@@ -857,6 +857,10 @@ Resources:
       ServiceName: !Sub 'com.amazonaws.${AWS::Region}.ssm'
       PrivateDnsEnabled: true
       VpcId: !Ref VPC
+      SubnetIds:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+        - !Ref PublicSubnet3
   SSMmessagesEndpoint:
     Type: AWS::EC2::VPCEndpoint
     Properties:
@@ -873,6 +877,10 @@ Resources:
       ServiceName: !Sub 'com.amazonaws.${AWS::Region}.ssmmessages'
       PrivateDnsEnabled: true
       VpcId: !Ref VPC
+      SubnetIds:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+        - !Ref PublicSubnet3
   CloudWatchEndpoint:
     Type: AWS::EC2::VPCEndpoint
     Properties:
@@ -889,6 +897,10 @@ Resources:
       ServiceName: !Sub 'com.amazonaws.${AWS::Region}.monitoring'
       PrivateDnsEnabled: true
       VpcId: !Ref VPC
+      SubnetIds:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+        - !Ref PublicSubnet3
   CloudWatchLogsEndpoint:
     Type: 'AWS::EC2::VPCEndpoint'
     Properties:
@@ -905,6 +917,10 @@ Resources:
       ServiceName: !Sub 'com.amazonaws.${AWS::Region}.logs'
       PrivateDnsEnabled: true
       VpcId: !Ref VPC
+      SubnetIds:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+        - !Ref PublicSubnet3
   STSEndpoint:
     Type: AWS::EC2::VPCEndpoint
     Properties:
@@ -921,6 +937,10 @@ Resources:
       ServiceName: !Sub 'com.amazonaws.${AWS::Region}.sts'
       PrivateDnsEnabled: true
       VpcId: !Ref VPC
+      SubnetIds:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+        - !Ref PublicSubnet3
 
 Outputs:
   VPC:
@@ -961,7 +981,7 @@ Outputs:
 
   DataSubnets:
     Description: A list of the data subnets
-    Value: !Join [ ",", [ !Ref DataSubnet1, !Ref DataSubnet2, DataSubnet3]]
+    Value: !Join [ ",", [ !Ref DataSubnet1, !Ref DataSubnet2, !Ref DataSubnet3]]
   DataSubnet1:
     Description: AWS reference to the first data subnet
     Value: !Ref DataSubnet1

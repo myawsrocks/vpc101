@@ -326,7 +326,7 @@ Outputs:
 
   DataSubnets:
     Description: A list of the data subnets
-    Value: !Join [ ",", [ !Ref DataSubnet1, !Ref DataSubnet2, DataSubnet3]]
+    Value: !Join [ ",", [ !Ref DataSubnet1, !Ref DataSubnet2, !Ref DataSubnet3]]
   DataSubnet1:
     Description: AWS reference to the first data subnet
     Value: !Ref DataSubnet1

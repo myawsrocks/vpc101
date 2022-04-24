@@ -1063,6 +1063,1369 @@ Resources:
         - !Ref PublicSubnet2
         - !Ref PublicSubnet3
 
+  PublicSubnetsNACL:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      VpcId:
+        Ref: VPC
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, PublicNACL]]
+        - Key: Project
+          Value: !Ref Project
+  PublicNACLInbound10:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PublicSubnetsNACL
+      RuleNumber: 10
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: 0.0.0.0/
+      Egress: false
+      PortRange:
+        From: 443
+        To: 443
+  PublicNACLOutbound10:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PublicSubnetsNACL
+      RuleNumber: 10
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: 0.0.0.0/0
+      Egress: true
+      PortRange:
+        From: 1024
+        To: 65535
+  PublicNACLInbound15:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PublicSubnetsNACL
+      RuleNumber: 15
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: ::/0
+      Egress: false
+      PortRange:
+        From: 443
+        To: 443
+  PublicNACLOutbound15:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PublicSubnetsNACL
+      RuleNumber: 15
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: ::/0
+      Egress: true
+      PortRange:
+        From: 1024
+        To: 65535
+  PublicNACLInbound100:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PublicSubnetsNACL
+      RuleNumber: 100
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: 0.0.0.0/0
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  PublicNACLOutbound100:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PublicSubnetsNACL
+      RuleNumber: 100
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: 0.0.0.0/0
+      Egress: true
+      PortRange:
+        From: 443
+        To: 443
+  PublicNACLInbound105:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PublicSubnetsNACL
+      RuleNumber: 105
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: ::/0
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  PublicNACLOutbound105:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PublicSubnetsNACL
+      RuleNumber: 105
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: ::/0
+      Egress: true
+      PortRange:
+        From: 443
+        To: 443
+
+  PresentationSubnetsNACL:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      VpcId:
+        Ref: VPC
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, PresentationNACL]]
+        - Key: Project
+          Value: !Ref Project
+  PresentationNACLInbound10:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 10
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PublicSubnet1
+      Egress: false
+      PortRange:
+          From: 443
+          To: 443
+  PresentationNACLOutbound10:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 10
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PublicSubnet1
+      Egress: true
+      PortRange:
+        From: 1024
+        To: 65535
+  PresentationNACLInbound11:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 11
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PublicSubnet2
+      Egress: false
+      PortRange:
+        From: 443
+        To: 443
+  PresentationNACLOutbound11:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 11
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PublicSubnet2
+      Egress: true
+      PortRange:
+        From: 1024
+        To: 65535
+  PresentationNACLInbound12:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 12
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PublicSubnet3
+      Egress: false
+      PortRange:
+        From: 443
+        To: 443
+  PresentationNACLOutbound12:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 12
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PublicSubnet3
+      Egress: true
+      PortRange:
+        From: 1024
+        To: 65535
+  PresentationNACLInbound15:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 15
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet1.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 443
+        To: 443
+  PresentationNACLOutbound15:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 15
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet1.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 1024
+        To: 65535
+  PresentationNACLInbound16:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 16
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet2.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 443
+        To: 443
+  PresentationNACLOutbound16:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 16
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet2.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 1024
+        To: 65535
+  PresentationNACLInbound17:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 17
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet3.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 443
+        To: 443
+  PresentationNACLOutbound17:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 17
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet3.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 1024
+        To: 65535
+
+  PresentationNACLInbound100:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 100
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Ref PublicSubnet1
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  PresentationNACLOutbound100:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 100
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PublicSubnet1
+      Egress: true
+      PortRange:
+        From: 443
+        To: 443
+  PresentationNACLInbound101:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 101
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PublicSubnet2
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  PresentationNACLOutbound101:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 101
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PublicSubnet2
+      Egress: true
+      PortRange:
+        From: 443
+        To: 443
+  PresentationNACLInbound102:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 102
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PublicSubnet3
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  PresentationNACLOutbound102:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 102
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PublicSubnet3
+      Egress: true
+      PortRange:
+        From: 443
+        To: 443
+  PresentationNACLInbound105:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 105
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet1.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  PresentationNACLOutbound105:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 105
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet1.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 443
+        To: 443
+  PresentationNACLInbound106:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 106
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet2.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  PresentationNACLOutbound106:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 106
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet2.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 443
+        To: 443
+  PresentationNACLInbound107:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 107
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet3.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  PresentationNACLOutbound107:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 107
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet3.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 443
+        To: 443
+
+  PresentationNACLInbound200:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 200
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref ApplicationSubnet1
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  PresentationNACLOutbound200:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 200
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref ApplicationSubnet1
+      Egress: true
+      PortRange:
+        From: 1
+        To: 1023
+  PresentationNACLInbound201:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 201
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref ApplicationSubnet2
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  PresentationNACLOutbound201:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 201
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref ApplicationSubnet2
+      Egress: true
+      PortRange:
+        From: 1
+        To: 1023
+  PresentationNACLInbound202:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 202
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref ApplicationSubnet3
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  PresentationNACLOutbound202:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 202
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref ApplicationSubnet3
+      Egress: true
+      PortRange:
+        From: 1
+        To: 1023
+  PresentationNACLInbound205:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 205
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt ApplicationSubnet1.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  PresentationNACLOutbound205:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 205
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt ApplicationSubnet1.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 1
+        To: 1023
+  PresentationNACLInbound206:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 206
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt ApplicationSubnet2.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  PresentationNACLOutbound206:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 206
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt ApplicationSubnet2.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 1
+        To: 1023
+  PresentationNACLInbound207:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 207
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt ApplicationSubnet3.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  PresentationNACLOutbound207:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PresentationSubnetsNACL
+      RuleNumber: 207
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt ApplicationSubnet3.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 1
+        To: 1023
+
+  ApplicationSubnetsNACL:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      VpcId:
+        Ref: VPC
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, ApplicationNACL]]
+        - Key: Project
+          Value: !Ref Project
+
+  ApplicationNACLInbound100:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 100
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Ref PublicSubnet1
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  ApplicationNACLOutbound100:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 100
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PublicSubnet1
+      Egress: true
+      PortRange:
+        From: 443
+        To: 443
+  ApplicationNACLInbound101:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 101
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PublicSubnet2
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  ApplicationNACLOutbound101:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 101
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PublicSubnet2
+      Egress: true
+      PortRange:
+        From: 443
+        To: 443
+  ApplicationNACLInbound102:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 102
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PublicSubnet3
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  ApplicationNACLOutbound102:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 102
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PublicSubnet3
+      Egress: true
+      PortRange:
+        From: 443
+        To: 443
+  ApplicationNACLInbound105:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 105
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet1.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  ApplicationNACLOutbound105:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 105
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet1.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 443
+        To: 443
+  ApplicationNACLInbound106:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 106
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet2.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  ApplicationNACLOutbound106:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 106
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet2.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 443
+        To: 443
+  ApplicationNACLInbound107:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 107
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet3.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  ApplicationNACLOutbound107:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 107
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet3.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 443
+        To: 443
+
+  ApplicationNACLInbound200:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 200
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PresentationSubnet1
+      Egress: false
+      PortRange:
+        From: 1
+        To: 1023
+  ApplicationNACLOutbound200:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 200
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PresentationSubnet1
+      Egress: true
+      PortRange:
+        From: 1024
+        To: 65535
+  ApplicatationNACLInbound201:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 201
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PresentationSubnet2
+      Egress: false
+      PortRange:
+        From: 1
+        To: 1023
+  ApplicationNACLOutbound201:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 201
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PresentationSubnet2
+      Egress: true
+      PortRange:
+        From: 1024
+        To: 65535
+  ApplicationNACLInbound202:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 202
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PresentationSubnet3
+      Egress: false
+      PortRange:
+        From: 1
+        To: 1023
+  ApplicationNACLOutbound202:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 202
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PresentationSubnet3
+      Egress: true
+      PortRange:
+        From: 1024
+        To: 65535
+  ApplicationNACLInbound205:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 205
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PresentationSubnet1.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 1
+        To: 1023
+  ApplicationNACLOutbound205:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 205
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PresentationSubnet1.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 1024
+        To: 65535
+  ApplicationNACLInbound206:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 206
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PresentationSubnet2.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 1
+        To: 1023
+  ApplicationNACLOutbound206:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 206
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PresentationSubnet2.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 1024
+        To: 65535
+  ApplicationNACLInbound207:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 207
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PresentationSubnet3.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 1
+        To: 1023
+  ApplicationNACLOutbound207:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 207
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PresentationSubnet3.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 1024
+        To: 65535
+
+  ApplicationNACLInbound300:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 300
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref DataSubnet1
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  ApplicationNACLOutbound300:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 300
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref DataSubnet1
+      Egress: true
+      PortRange:
+        From: 1
+        To: 1023
+  ApplicatationNACLInbound301:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 301
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref DataSubnet2
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  ApplicationNACLOutbound301:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 301
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref DataSubnet2
+      Egress: true
+      PortRange:
+        From: 1
+        To: 1023
+  ApplicationNACLInbound302:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 302
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref DataSubnet3
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  ApplicationNACLOutbound302:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 302
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref DataSubnet3
+      Egress: true
+      PortRange:
+        From: 1
+        To: 1023
+  ApplicationNACLInbound305:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 305
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt DataSubnet1.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  ApplicationNACLOutbound305:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 305
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt DataSubnet1.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 1
+        To: 1023
+  ApplicationNACLInbound306:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 306
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt DataSubnet2.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  ApplicationNACLOutbound306:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 306
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt DataSubnet2.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 1
+        To: 1023
+  ApplicationNACLInbound307:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 307
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt DataSubnet3.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  ApplicationNACLOutbound307:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnetsNACL
+      RuleNumber: 307
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt DataSubnet3.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 1
+        To: 1023
+
+  DataSubnetsNACL:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      VpcId:
+        Ref: VPC
+      Tags:
+        - Key: Name
+          Value: !Join [ "-", [ !Ref Project, DataNACL]]
+        - Key: Project
+          Value: !Ref Project
+
+  DataNACLInbound100:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 100
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Ref PublicSubnet1
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  DataNACLOutbound100:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 100
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PublicSubnet1
+      Egress: true
+      PortRange:
+        From: 443
+        To: 443
+  DataNACLInbound101:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 101
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PublicSubnet2
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  DataNACLOutbound101:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 101
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PublicSubnet2
+      Egress: true
+      PortRange:
+        From: 443
+        To: 443
+  DataNACLInbound102:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 102
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PublicSubnet3
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  DataNACLOutbound102:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 102
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref PublicSubnet3
+      Egress: true
+      PortRange:
+        From: 443
+        To: 443
+  DataNACLInbound105:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 105
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet1.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  DataNACLOutbound105:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 105
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet1.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 443
+        To: 443
+  DataNACLInbound106:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 106
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet2.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  DataNACLOutbound106:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 106
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet2.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 443
+        To: 443
+  DataNACLInbound107:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 107
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet3.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 1024
+        To: 65535
+  DataNACLOutbound107:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 107
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt PublicSubnet3.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 443
+        To: 443
+
+  DataNACLInbound300:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 300
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref ApplicationSubnet1
+      Egress: false
+      PortRange:
+        From: 1
+        To: 1023
+  DataNACLOutbound300:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 300
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref ApplicationSubnet1
+      Egress: true
+      PortRange:
+        From: 1024
+        To: 65535
+  DataNACLInbound301:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 301
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref ApplicationSubnet2
+      Egress: false
+      PortRange:
+        From: 1
+        To: 1023
+  DataNACLOutbound301:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 301
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref ApplicationSubnet2
+      Egress: true
+      PortRange:
+        From: 1024
+        To: 65535
+  DataNACLInbound302:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 302
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref ApplicationSubnet3
+      Egress: false
+      PortRange:
+        From: 1
+        To: 1023
+  DataNACLOutbound302:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 302
+      RuleAction: allow
+      Protocol: 6
+      CidrBlock: !Ref ApplicationSubnet3
+      Egress: true
+      PortRange:
+        From: 1024
+        To: 65535
+  DataNACLInbound305:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 305
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt ApplicationSubnet1.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 1
+        To: 1023
+  DataNACLOutbound305:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 305
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt ApplicationSubnet1.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 1024
+        To: 65535
+  DataNACLInbound306:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 306
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt ApplicationSubnet2.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 1
+        To: 1023
+  DataNACLOutbound306:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 306
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt ApplicationSubnet2.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 1024
+        To: 65535
+  DataNACLInbound307:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 307
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt ApplicationSubnet3.Ipv6CidrBlocks]
+      Egress: false
+      PortRange:
+        From: 1
+        To: 1023
+  DataNACLOutbound307:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref DataSubnetsNACL
+      RuleNumber: 307
+      RuleAction: allow
+      Protocol: 6
+      Ipv6CidrBlock: !Select [ 0, !GetAtt ApplicationSubnet3.Ipv6CidrBlocks]
+      Egress: true
+      PortRange:
+        From: 1024
+        To: 65535
+
+  PublicSubnet1NACLAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref PublicSubnet1
+      SubnetId: !Ref PublicSubnetsNACL
+  PublicSubnet2NACLAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref PublicSubnet2
+      SubnetId: !Ref PublicSubnetsNACL
+  PublicSubnet3NACLAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref PublicSubnet3
+      SubnetId: !Ref PublicSubnetsNACL
+
+  PresentationSubnet1NACLAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref PresentationSubnet1
+      SubnetId: !Ref PresentationSubnetsNACL
+  PresentationSubnet2NACLAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref PresentationSubnet2
+      SubnetId: !Ref PresentationSubnetsNACL
+  PresentationSubnet3NACLAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref PresentationSubnet3
+      SubnetId: !Ref PresentationSubnetsNACL
+
+  ApplicationSubnet1NACLAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnet1
+      SubnetId: !Ref ApplicationSubnetsNACL
+  ApplicationSubnet2NACLAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnet2
+      SubnetId: !Ref ApplicationSubnetsNACL
+  ApplicationSubnet3NACLAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref ApplicationSubnet3
+      SubnetId: !Ref ApplicationSubnetsNACL
+
+  DataSubnet1NACLAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref DataSubnet1
+      SubnetId: !Ref DataSubnetsNACL
+  DataSubnet2NACLAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref DataSubnet2
+      SubnetId: !Ref DataSubnetsNACL
+  DataSubnet3NACLAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref DataSubnet3
+      SubnetId: !Ref DataSubnetsNACL
+
 Outputs:
   VPC:
     Description: AWS reference to the created VPC
@@ -1186,7 +2549,17 @@ Outputs:
   DataSubnet3IPv6CIDR:
     Description: IPv6 range for Data Subnet 2
     Value: !Select [ 0, !GetAtt DataSubnet3.Ipv6CidrBlocks]
-  
+
+  PublicSubnet1IPv6CIDR:
+    Description: IPv6 range for Data Subnet 2
+    Value: !Select [ 0, !GetAtt PublicSubnet1.Ipv6CidrBlocks]
+  PublicSubnet2IPv6CIDR:
+    Description: IPv6 range for Data Subnet 2
+    Value: !Select [ 0, !GetAtt PublicSubnet2.Ipv6CidrBlocks]
+  PublicSubnet3IPv6CIDR:
+    Description: IPv6 range for Data Subnet 2
+    Value: !Select [ 0, !GetAtt PublicSubnet3.Ipv6CidrBlocks]
+
   PrivateRouteTable1:
     Condition: MultiNAT
     Description: AWS reference for Private Route Table 1

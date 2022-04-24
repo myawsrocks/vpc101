@@ -56,35 +56,47 @@ At the end of the deployment you will have a VPC spanning multiple Availability 
 ![Product Name Screen Shot][product-screenshot]
 
 ###Components built with the solution are:
-<ol>
-<li>Create an empty VPC with an IPv4 CIDR range - vpc_1.yaml</li>
-<li>Create an IPv6 CIDR range and associate to the VPC - vpc_2.yaml</li>
-<li>Create 9 private subnets with IPv4 and IPv6 IP ranges allocated: - vpc_3.yaml</li>
-    <ul>
-    <li>3x Presentation</li>
-    <li>3x Application</li>
-    <li>3x Data</li>
-    </ul>
-<li>Create a private route tables and associate to the private subnets - vpc_4.yaml</li>
-<li>Enable VPC Flow Logs and send to encrypted S3 Bucket and encrypted CloudWatch Log Group - vpc_5.yaml</li>
-<li>Deploy VPC Endpoints for common AWS Services - vpc_6.yaml</li>
-    <ul>
-    <li>Systems Manager (ssm)</li>
-    <li>Systems Manager Messages (ssmmessages)</li>
-    <li>CloudWatch Metrics (monitoring)</li>
-    <li>CloudWatch Logs (logs)</li>
-    <li>Simple Token Service (sts)</li>
-    </ul>
-<li>Internet Routing - vpc_7.yaml</li>
-    <ul>
-    <li>3x Public Subnets</li>
-    <li>Public Route Table</li>
-    <li>Internet Gateway (IPv4 and IPv6)</li>
-    <li>NAT Gateway (IPv4)</li>
-    <li>Egress Only Internet Gateway (IPv6)</li>
-    <li>3x Private Route Tables</li>
-    </ul>
-</ol>
+<details>
+  <ol>
+    <li>Create an empty VPC with an IPv4 CIDR range - vpc_1.yaml</li>
+    <li>Create an IPv6 CIDR range and associate to the VPC - vpc_2.yaml</li>
+    <li>Create 9 private subnets with IPv4 and IPv6 IP ranges allocated: - vpc_3.yaml
+      <ul>
+        <li>3x Presentation</li>
+        <li>3x Application</li>
+        <li>3x Data</li>
+      </ul>
+    <li>Create a private route tables and associate to the private subnets - vpc_4.yaml</li>
+    <li>Enable VPC Flow Logs and send to encrypted S3 Bucket and encrypted CloudWatch Log Group - vpc_5.yaml</li>
+    <li>Deploy VPC Endpoints for common AWS Services - vpc_6.yaml
+      <ul>
+        <li>Systems Manager (ssm)</li>
+        <li>Systems Manager Messages (ssmmessages)</li>
+        <li>CloudWatch Metrics (monitoring)</li>
+        <li>CloudWatch Logs (logs)</li>
+        <li>Simple Token Service (sts)</li>
+      </ul>
+    <li>Internet Routing - vpc_7.yaml
+      <ul>
+        <li>3x Public Subnets</li>
+        <li>Public Route Table</li>
+        <li>Internet Gateway (IPv4 and IPv6)</li>
+        <li>NAT Gateway (IPv4)</li>
+        <li>Egress Only Internet Gateway (IPv6)</li>
+        <li>3x Private Route Tables</li>
+      </ul>
+    </li>
+    <li>Reduced Redundancy NAT Gateway</li>
+    <li>Network Access Control Lists (NACLs)
+      <ul>
+        <li>Public Subnet NACL</li>
+        <li>Presentation Subnet NACL</li>
+        <li>Application SubnetNACL</li>
+        <li>Data Subnet NACL</li>
+      </ul>~~~~
+    </li>
+  </ol>
+</details>
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- GETTING STARTED -->
@@ -130,22 +142,10 @@ So in a month with 31 days (744 hours) that equates to <b>$157</b> just to have 
 So, once you've taken a look around what's been provisioned go back to the cloudformation stack and delete. 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-<!--USAGE EXAMPLES
-## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
-
-<p align="right">(<a href="#top">back to top</a>)</p>
--->
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Alternate NAT options
-  - [ ] EC2 based NAT
-  - [ ] Reduced redundancy NAT Gateway
-  - [ ] Reduced redundancy EC2 based NAT
 - [ ] IPv6 only subnets
   - [ ] 
 
