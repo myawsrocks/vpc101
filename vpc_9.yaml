@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: VPC 101 Template - Base VPC with IPv6, subnets, routing, flowlogs, VPC Endpoints and Public Subnets with internet access
+Description: VPC 101 Template - Base VPC with IPv6, subnets, routing, flowlogs, VPC Endpoints and Public Subnets with internet access and NACLS.
 Metadata: 
   AWS::CloudFormation::Interface: 
     ParameterGroups: 
@@ -1080,7 +1080,7 @@ Resources:
       RuleNumber: 10
       RuleAction: allow
       Protocol: 6
-      CidrBlock: 0.0.0.0/
+      CidrBlock: 0.0.0.0/0
       Egress: false
       PortRange:
         From: 443
@@ -1187,7 +1187,7 @@ Resources:
       RuleNumber: 10
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PublicSubnet1
+      CidrBlock: !Ref PublicSubnet1CIDR
       Egress: false
       PortRange:
           From: 443
@@ -1199,7 +1199,7 @@ Resources:
       RuleNumber: 10
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PublicSubnet1
+      CidrBlock: !Ref PublicSubnet1CIDR
       Egress: true
       PortRange:
         From: 1024
@@ -1211,7 +1211,7 @@ Resources:
       RuleNumber: 11
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PublicSubnet2
+      CidrBlock: !Ref PublicSubnet2CIDR
       Egress: false
       PortRange:
         From: 443
@@ -1223,7 +1223,7 @@ Resources:
       RuleNumber: 11
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PublicSubnet2
+      CidrBlock: !Ref PublicSubnet2CIDR
       Egress: true
       PortRange:
         From: 1024
@@ -1235,7 +1235,7 @@ Resources:
       RuleNumber: 12
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PublicSubnet3
+      CidrBlock: !Ref PublicSubnet3CIDR
       Egress: false
       PortRange:
         From: 443
@@ -1247,7 +1247,7 @@ Resources:
       RuleNumber: 12
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PublicSubnet3
+      CidrBlock: !Ref PublicSubnet3CIDR
       Egress: true
       PortRange:
         From: 1024
@@ -1332,7 +1332,7 @@ Resources:
       RuleNumber: 100
       RuleAction: allow
       Protocol: 6
-      Ipv6CidrBlock: !Ref PublicSubnet1
+      CidrBlock: !Ref PublicSubnet1CIDR
       Egress: false
       PortRange:
         From: 1024
@@ -1344,7 +1344,7 @@ Resources:
       RuleNumber: 100
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PublicSubnet1
+      CidrBlock: !Ref PublicSubnet1CIDR
       Egress: true
       PortRange:
         From: 443
@@ -1356,7 +1356,7 @@ Resources:
       RuleNumber: 101
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PublicSubnet2
+      CidrBlock: !Ref PublicSubnet2CIDR
       Egress: false
       PortRange:
         From: 1024
@@ -1368,7 +1368,7 @@ Resources:
       RuleNumber: 101
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PublicSubnet2
+      CidrBlock: !Ref PublicSubnet2CIDR
       Egress: true
       PortRange:
         From: 443
@@ -1380,7 +1380,7 @@ Resources:
       RuleNumber: 102
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PublicSubnet3
+      CidrBlock: !Ref PublicSubnet3CIDR
       Egress: false
       PortRange:
         From: 1024
@@ -1392,7 +1392,7 @@ Resources:
       RuleNumber: 102
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PublicSubnet3
+      CidrBlock: !Ref PublicSubnet3CIDR
       Egress: true
       PortRange:
         From: 443
@@ -1477,7 +1477,7 @@ Resources:
       RuleNumber: 200
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref ApplicationSubnet1
+      CidrBlock: !Ref ApplicationSubnet1CIDR
       Egress: false
       PortRange:
         From: 1024
@@ -1489,7 +1489,7 @@ Resources:
       RuleNumber: 200
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref ApplicationSubnet1
+      CidrBlock: !Ref ApplicationSubnet1CIDR
       Egress: true
       PortRange:
         From: 1
@@ -1501,7 +1501,7 @@ Resources:
       RuleNumber: 201
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref ApplicationSubnet2
+      CidrBlock: !Ref ApplicationSubnet2CIDR
       Egress: false
       PortRange:
         From: 1024
@@ -1513,7 +1513,7 @@ Resources:
       RuleNumber: 201
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref ApplicationSubnet2
+      CidrBlock: !Ref ApplicationSubnet2CIDR
       Egress: true
       PortRange:
         From: 1
@@ -1525,7 +1525,7 @@ Resources:
       RuleNumber: 202
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref ApplicationSubnet3
+      CidrBlock: !Ref ApplicationSubnet3CIDR
       Egress: false
       PortRange:
         From: 1024
@@ -1537,7 +1537,7 @@ Resources:
       RuleNumber: 202
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref ApplicationSubnet3
+      CidrBlock: !Ref ApplicationSubnet3CIDR
       Egress: true
       PortRange:
         From: 1
@@ -1633,7 +1633,7 @@ Resources:
       RuleNumber: 100
       RuleAction: allow
       Protocol: 6
-      Ipv6CidrBlock: !Ref PublicSubnet1
+      CidrBlock: !Ref PublicSubnet1CIDR
       Egress: false
       PortRange:
         From: 1024
@@ -1645,7 +1645,7 @@ Resources:
       RuleNumber: 100
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PublicSubnet1
+      CidrBlock: !Ref PublicSubnet1CIDR
       Egress: true
       PortRange:
         From: 443
@@ -1657,7 +1657,7 @@ Resources:
       RuleNumber: 101
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PublicSubnet2
+      CidrBlock: !Ref PublicSubnet2CIDR
       Egress: false
       PortRange:
         From: 1024
@@ -1669,7 +1669,7 @@ Resources:
       RuleNumber: 101
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PublicSubnet2
+      CidrBlock: !Ref PublicSubnet2CIDR
       Egress: true
       PortRange:
         From: 443
@@ -1681,7 +1681,7 @@ Resources:
       RuleNumber: 102
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PublicSubnet3
+      CidrBlock: !Ref PublicSubnet3CIDR
       Egress: false
       PortRange:
         From: 1024
@@ -1693,7 +1693,7 @@ Resources:
       RuleNumber: 102
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PublicSubnet3
+      CidrBlock: !Ref PublicSubnet3CIDR
       Egress: true
       PortRange:
         From: 443
@@ -1778,7 +1778,7 @@ Resources:
       RuleNumber: 200
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PresentationSubnet1
+      CidrBlock: !Ref PresentationSubnet1CIDR
       Egress: false
       PortRange:
         From: 1
@@ -1790,7 +1790,7 @@ Resources:
       RuleNumber: 200
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PresentationSubnet1
+      CidrBlock: !Ref PresentationSubnet1CIDR
       Egress: true
       PortRange:
         From: 1024
@@ -1802,7 +1802,7 @@ Resources:
       RuleNumber: 201
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PresentationSubnet2
+      CidrBlock: !Ref PresentationSubnet2CIDR
       Egress: false
       PortRange:
         From: 1
@@ -1814,7 +1814,7 @@ Resources:
       RuleNumber: 201
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PresentationSubnet2
+      CidrBlock: !Ref PresentationSubnet2CIDR
       Egress: true
       PortRange:
         From: 1024
@@ -1826,7 +1826,7 @@ Resources:
       RuleNumber: 202
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PresentationSubnet3
+      CidrBlock: !Ref PresentationSubnet3CIDR
       Egress: false
       PortRange:
         From: 1
@@ -1838,7 +1838,7 @@ Resources:
       RuleNumber: 202
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PresentationSubnet3
+      CidrBlock: !Ref PresentationSubnet3CIDR
       Egress: true
       PortRange:
         From: 1024
@@ -1923,7 +1923,7 @@ Resources:
       RuleNumber: 300
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref DataSubnet1
+      CidrBlock: !Ref DataSubnet1CIDR
       Egress: false
       PortRange:
         From: 1024
@@ -1935,7 +1935,7 @@ Resources:
       RuleNumber: 300
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref DataSubnet1
+      CidrBlock: !Ref DataSubnet1CIDR
       Egress: true
       PortRange:
         From: 1
@@ -1947,7 +1947,7 @@ Resources:
       RuleNumber: 301
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref DataSubnet2
+      CidrBlock: !Ref DataSubnet2CIDR
       Egress: false
       PortRange:
         From: 1024
@@ -1959,7 +1959,7 @@ Resources:
       RuleNumber: 301
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref DataSubnet2
+      CidrBlock: !Ref DataSubnet2CIDR
       Egress: true
       PortRange:
         From: 1
@@ -1971,7 +1971,7 @@ Resources:
       RuleNumber: 302
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref DataSubnet3
+      CidrBlock: !Ref DataSubnet3CIDR
       Egress: false
       PortRange:
         From: 1024
@@ -1983,7 +1983,7 @@ Resources:
       RuleNumber: 302
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref DataSubnet3
+      CidrBlock: !Ref DataSubnet3CIDR
       Egress: true
       PortRange:
         From: 1
@@ -2079,7 +2079,7 @@ Resources:
       RuleNumber: 100
       RuleAction: allow
       Protocol: 6
-      Ipv6CidrBlock: !Ref PublicSubnet1
+      CidrBlock: !Ref PublicSubnet1CIDR
       Egress: false
       PortRange:
         From: 1024
@@ -2091,7 +2091,7 @@ Resources:
       RuleNumber: 100
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PublicSubnet1
+      CidrBlock: !Ref PublicSubnet1CIDR
       Egress: true
       PortRange:
         From: 443
@@ -2103,7 +2103,7 @@ Resources:
       RuleNumber: 101
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PublicSubnet2
+      CidrBlock: !Ref PublicSubnet2CIDR
       Egress: false
       PortRange:
         From: 1024
@@ -2115,7 +2115,7 @@ Resources:
       RuleNumber: 101
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PublicSubnet2
+      CidrBlock: !Ref PublicSubnet2CIDR
       Egress: true
       PortRange:
         From: 443
@@ -2127,7 +2127,7 @@ Resources:
       RuleNumber: 102
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PublicSubnet3
+      CidrBlock: !Ref PublicSubnet3CIDR
       Egress: false
       PortRange:
         From: 1024
@@ -2139,7 +2139,7 @@ Resources:
       RuleNumber: 102
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref PublicSubnet3
+      CidrBlock: !Ref PublicSubnet3CIDR
       Egress: true
       PortRange:
         From: 443
@@ -2224,7 +2224,7 @@ Resources:
       RuleNumber: 300
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref ApplicationSubnet1
+      CidrBlock: !Ref ApplicationSubnet1CIDR
       Egress: false
       PortRange:
         From: 1
@@ -2236,7 +2236,7 @@ Resources:
       RuleNumber: 300
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref ApplicationSubnet1
+      CidrBlock: !Ref ApplicationSubnet1CIDR
       Egress: true
       PortRange:
         From: 1024
@@ -2248,7 +2248,7 @@ Resources:
       RuleNumber: 301
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref ApplicationSubnet2
+      CidrBlock: !Ref ApplicationSubnet2CIDR
       Egress: false
       PortRange:
         From: 1
@@ -2260,7 +2260,7 @@ Resources:
       RuleNumber: 301
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref ApplicationSubnet2
+      CidrBlock: !Ref ApplicationSubnet2CIDR
       Egress: true
       PortRange:
         From: 1024
@@ -2272,7 +2272,7 @@ Resources:
       RuleNumber: 302
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref ApplicationSubnet3
+      CidrBlock: !Ref ApplicationSubnet3CIDR
       Egress: false
       PortRange:
         From: 1
@@ -2284,7 +2284,7 @@ Resources:
       RuleNumber: 302
       RuleAction: allow
       Protocol: 6
-      CidrBlock: !Ref ApplicationSubnet3
+      CidrBlock: !Ref ApplicationSubnet3CIDR
       Egress: true
       PortRange:
         From: 1024
@@ -2365,66 +2365,66 @@ Resources:
   PublicSubnet1NACLAssociation:
     Type: AWS::EC2::SubnetNetworkAclAssociation
     Properties:
-      NetworkAclId: !Ref PublicSubnet1
-      SubnetId: !Ref PublicSubnetsNACL
+      SubnetId: !Ref PublicSubnet1
+      NetworkAclId: !Ref PublicSubnetsNACL
   PublicSubnet2NACLAssociation:
     Type: AWS::EC2::SubnetNetworkAclAssociation
     Properties:
-      NetworkAclId: !Ref PublicSubnet2
-      SubnetId: !Ref PublicSubnetsNACL
+      SubnetId: !Ref PublicSubnet2
+      NetworkAclId: !Ref PublicSubnetsNACL
   PublicSubnet3NACLAssociation:
     Type: AWS::EC2::SubnetNetworkAclAssociation
     Properties:
-      NetworkAclId: !Ref PublicSubnet3
-      SubnetId: !Ref PublicSubnetsNACL
+      SubnetId: !Ref PublicSubnet3
+      NetworkAclId: !Ref PublicSubnetsNACL
 
   PresentationSubnet1NACLAssociation:
     Type: AWS::EC2::SubnetNetworkAclAssociation
     Properties:
-      NetworkAclId: !Ref PresentationSubnet1
-      SubnetId: !Ref PresentationSubnetsNACL
+      SubnetId: !Ref PresentationSubnet1
+      NetworkAclId: !Ref PresentationSubnetsNACL
   PresentationSubnet2NACLAssociation:
     Type: AWS::EC2::SubnetNetworkAclAssociation
     Properties:
-      NetworkAclId: !Ref PresentationSubnet2
-      SubnetId: !Ref PresentationSubnetsNACL
+      SubnetId: !Ref PresentationSubnet2
+      NetworkAclId: !Ref PresentationSubnetsNACL
   PresentationSubnet3NACLAssociation:
     Type: AWS::EC2::SubnetNetworkAclAssociation
     Properties:
-      NetworkAclId: !Ref PresentationSubnet3
-      SubnetId: !Ref PresentationSubnetsNACL
+      SubnetId: !Ref PresentationSubnet3
+      NetworkAclId: !Ref PresentationSubnetsNACL
 
   ApplicationSubnet1NACLAssociation:
     Type: AWS::EC2::SubnetNetworkAclAssociation
     Properties:
-      NetworkAclId: !Ref ApplicationSubnet1
-      SubnetId: !Ref ApplicationSubnetsNACL
+      SubnetId: !Ref ApplicationSubnet1
+      NetworkAclId: !Ref ApplicationSubnetsNACL
   ApplicationSubnet2NACLAssociation:
     Type: AWS::EC2::SubnetNetworkAclAssociation
     Properties:
-      NetworkAclId: !Ref ApplicationSubnet2
-      SubnetId: !Ref ApplicationSubnetsNACL
+      SubnetId: !Ref ApplicationSubnet2
+      NetworkAclId: !Ref ApplicationSubnetsNACL
   ApplicationSubnet3NACLAssociation:
     Type: AWS::EC2::SubnetNetworkAclAssociation
     Properties:
-      NetworkAclId: !Ref ApplicationSubnet3
-      SubnetId: !Ref ApplicationSubnetsNACL
+      SubnetId: !Ref ApplicationSubnet3
+      NetworkAclId: !Ref ApplicationSubnetsNACL
 
   DataSubnet1NACLAssociation:
     Type: AWS::EC2::SubnetNetworkAclAssociation
     Properties:
-      NetworkAclId: !Ref DataSubnet1
-      SubnetId: !Ref DataSubnetsNACL
+      SubnetId: !Ref DataSubnet1
+      NetworkAclId: !Ref DataSubnetsNACL
   DataSubnet2NACLAssociation:
     Type: AWS::EC2::SubnetNetworkAclAssociation
     Properties:
-      NetworkAclId: !Ref DataSubnet2
-      SubnetId: !Ref DataSubnetsNACL
+      SubnetId: !Ref DataSubnet2
+      NetworkAclId: !Ref DataSubnetsNACL
   DataSubnet3NACLAssociation:
     Type: AWS::EC2::SubnetNetworkAclAssociation
     Properties:
-      NetworkAclId: !Ref DataSubnet3
-      SubnetId: !Ref DataSubnetsNACL
+      SubnetId: !Ref DataSubnet3
+      NetworkAclId: !Ref DataSubnetsNACL
 
 Outputs:
   VPC:
